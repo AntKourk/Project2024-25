@@ -1,3 +1,3 @@
-/home/antkourk/Project2024-25/executables/build/CMakeFiles/hello_cgal.dir
-/home/antkourk/Project2024-25/executables/build/CMakeFiles/edit_cache.dir
-/home/antkourk/Project2024-25/executables/build/CMakeFiles/rebuild_cache.dir
+/home/mariami/Project2024-25/executables/build/CMakeFiles/rebuild_cache.dir
+/home/mariami/Project2024-25/executables/build/CMakeFiles/edit_cache.dir
+/home/mariami/Project2024-25/executables/build/CMakeFiles/hello_cgal.dir

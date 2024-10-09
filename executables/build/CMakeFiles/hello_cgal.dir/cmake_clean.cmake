@@ -1,6 +1,5 @@
 file(REMOVE_RECURSE
   "CMakeFiles/hello_cgal.dir/hello_cgal.cpp.o"
-  "CMakeFiles/hello_cgal.dir/hello_cgal.cpp.o.d"
   "hello_cgal"
   "hello_cgal.pdb"
 )

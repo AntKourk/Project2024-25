@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/mariami/Project2024-25/executables/hello_cgal.cpp
+CGAL/Simple_cartesian.h
+-
+CGAL/point_generators_2.h
+-
+iostream
+-
+
