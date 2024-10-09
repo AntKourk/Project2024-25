@@ -1,0 +1,5 @@
+# Ignore the build directory
+executebles/build/
+
+# Ignore the CMakeLists.txt file in the executebles directory
+executebles/CMakeLists.txt
