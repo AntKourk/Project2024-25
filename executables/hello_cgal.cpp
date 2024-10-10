@@ -70,68 +70,68 @@ int main() {
 
 
 
-#include <QApplication>
-#include <QWidget>
-#include <QPainter>
-#include <CGAL/Simple_cartesian.h>
-#include <CGAL/Delaunay_triangulation_2.h>
-#include <vector>
+// #include <QApplication>
+// #include <QWidget>
+// #include <QPainter>
+// #include <CGAL/Simple_cartesian.h>
+// #include <CGAL/Delaunay_triangulation_2.h>
+// #include <vector>
 
-// Define a simple Cartesian kernel and the triangulation type
-typedef CGAL::Simple_cartesian<double> K;
-typedef CGAL::Delaunay_triangulation_2<K> Delaunay;
-typedef Delaunay::Point Point;
+// // Define a simple Cartesian kernel and the triangulation type
+// typedef CGAL::Simple_cartesian<double> K;
+// typedef CGAL::Delaunay_triangulation_2<K> Delaunay;
+// typedef Delaunay::Point Point;
 
-class DelaunayWidget : public QWidget {
-public:
-    DelaunayWidget(QWidget *parent = nullptr) : QWidget(parent) {
-        // Sample points
-        points.push_back(Point(100, 100));
-        points.push_back(Point(200, 50));
-        points.push_back(Point(300, 150));
-        points.push_back(Point(250, 250));
-        points.push_back(Point(150, 200));
+// class DelaunayWidget : public QWidget {
+// public:
+//     DelaunayWidget(QWidget *parent = nullptr) : QWidget(parent) {
+//         // Sample points
+//         points.push_back(Point(100, 100));
+//         points.push_back(Point(200, 50));
+//         points.push_back(Point(300, 150));
+//         points.push_back(Point(250, 250));
+//         points.push_back(Point(150, 200));
 
-        // Create the Delaunay triangulation
-        dt.insert(points.begin(), points.end());
-    }
+//         // Create the Delaunay triangulation
+//         dt.insert(points.begin(), points.end());
+//     }
 
-protected:
-    void paintEvent(QPaintEvent *event) override {
-        QPainter painter(this);
-        painter.setRenderHint(QPainter::Antialiasing);
+// protected:
+//     void paintEvent(QPaintEvent *event) override {
+//         QPainter painter(this);
+//         painter.setRenderHint(QPainter::Antialiasing);
 
-        // Draw the triangulation
-        for (auto e = dt.finite_edges_begin(); e != dt.finite_edges_end(); ++e) {
-            auto segment = dt.segment(e);
-            painter.drawLine(QPointF(segment.source().x(), segment.source().y()),
-                             QPointF(segment.target().x(), segment.target().y()));
-        }
+//         // Draw the triangulation
+//         for (auto e = dt.finite_edges_begin(); e != dt.finite_edges_end(); ++e) {
+//             auto segment = dt.segment(e);
+//             painter.drawLine(QPointF(segment.source().x(), segment.source().y()),
+//                              QPointF(segment.target().x(), segment.target().y()));
+//         }
 
-        // Draw the points
-        painter.setBrush(Qt::red);
-        for (const auto &p : points) {
-            painter.drawEllipse(QPointF(p.x(), p.y()), 3, 3);
-        }
-    }
+//         // Draw the points
+//         painter.setBrush(Qt::red);
+//         for (const auto &p : points) {
+//             painter.drawEllipse(QPointF(p.x(), p.y()), 3, 3);
+//         }
+//     }
 
-private:
-    std::vector<Point> points;
-    Delaunay dt;
-};
+// private:
+//     std::vector<Point> points;
+//     Delaunay dt;
+// };
 
-int main(int argc, char *argv[]) {
-    QApplication app(argc, argv);
+// int main(int argc, char *argv[]) {
+//     QApplication app(argc, argv);
 
-    DelaunayWidget widget;
-    widget.resize(400, 400);
-    widget.show();
+//     DelaunayWidget widget;
+//     widget.resize(400, 400);
+//     widget.show();
 
-    return app.exec();
-}
+//     return app.exec();
+// }
 
 
-/*
+
 #include <QApplication>
 #include <CGAL/Simple_cartesian.h>
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
@@ -162,6 +162,6 @@ int main(int argc, char **argv) {
     CGAL::draw(dt);
 
     return app.exec();
-}*/
+}
 
 
