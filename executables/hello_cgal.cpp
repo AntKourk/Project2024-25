@@ -1,177 +1,85 @@
-/*/#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <iostream>
-#include <vector>
+// #include <CGAL/draw_triangulation_2.h>
+// #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+// #include <CGAL/Constrained_Delaunay_triangulation_2.h>
+// #include <iostream>
 
-int main() {
-    // Δημιουργία του property tree
-    boost::property_tree::ptree pt;
+// typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+// typedef CGAL::Exact_predicates_tag Itag;
+// typedef CGAL::Constrained_Delaunay_triangulation_2<K, CGAL::Default, Itag> CDT;
+// typedef CDT::Point Point;
+// typedef CDT::Edge Edge;
 
-    // Ανάγνωση από JSON αρχείο
-    try {
-        read_json("input.json", pt);
-    } catch (const boost::property_tree::json_parser_error &e) {
-        std::cerr << "Error reading JSON: " << e.what() << std::endl;
-        return 1;
-    }
+// int main() {
+//     CDT cdt;
+//     std::cout << "Inserting a grid of 5x5 constraints " << std::endl;
 
-    // Ανάκτηση δεδομένων από το property tree
-    std::string instance_uid = pt.get<std::string>("instance_uid");
-    int num_points = pt.get<int>("num_points");
-
-    // Ανάκτηση σημείων
-    std::vector<int> points_x;
-    for (const auto& point : pt.get_child("points_x")) {
-        points_x.push_back(point.second.get_value<int>());
-    }
-
-    std::vector<int> points_y;
-    for (const auto& point : pt.get_child("points_y")) {
-        points_y.push_back(point.second.get_value<int>());
-    }
-
-
-    // Ανάκτηση περιορισμών
-    int num_constraints = pt.get<int>("num_constraints");
-    std::vector<std::pair<int, int>> additional_constraints;
-
-    for (const auto& constraint : pt.get_child("additional_constraints")) {
-        // Οι κόμβοι για κάθε περιορισμό είναι μορφής [0, 1]
-        auto it = constraint.second.begin();
-        int first = it->second.get_value<int>(); // Πρώτο στοιχείο
-        ++it; // Μετακίνηση στον επόμενο κόμβο
-        int second = it->second.get_value<int>(); // Δεύτερο στοιχείο
-        additional_constraints.emplace_back(first, second);
-    }
-
-    // Εκτύπωση δεδομένων
-    std::cout << "Instance UID: " << instance_uid << std::endl;
-    std::cout << "Number of Points: " << num_points << std::endl;
-    std::cout << "Points X: ";
-    for (const auto& x : points_x) {
-        std::cout << x << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "Points Y: ";
-    for (const auto& y : points_y) {
-        std::cout << y << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "Number of Constraints: " << num_constraints << std::endl;
-    std::cout << "Additional Constraints: " << std::endl;
-    for (const auto& constraint : additional_constraints) {
-        std::cout << "[" << constraint.first << ", " << constraint.second << "]" << std::endl;
-    }
-
-    return 0;
-}*/
-
-
-
-// #include <QApplication>
-// #include <QWidget>
-// #include <QPainter>
-// #include <CGAL/Simple_cartesian.h>
-// #include <CGAL/Delaunay_triangulation_2.h>
-// #include <vector>
-
-// // Define a simple Cartesian kernel and the triangulation type
-// typedef CGAL::Simple_cartesian<double> K;
-// typedef CGAL::Delaunay_triangulation_2<K> Delaunay;
-// typedef Delaunay::Point Point;
-
-// class DelaunayWidget : public QWidget {
-// public:
-//     DelaunayWidget(QWidget *parent = nullptr) : QWidget(parent) {
-//         // Sample points
-//         points.push_back(Point(100, 100));
-//         points.push_back(Point(200, 50));
-//         points.push_back(Point(300, 150));
-//         points.push_back(Point(250, 250));
-//         points.push_back(Point(150, 200));
-
-//         // Create the Delaunay triangulation
-//         dt.insert(points.begin(), points.end());
+//     // Corrected the for-loop syntax and the condition check
+//     for (int i = 1; i < 6; ++i) {
+//         cdt.insert_constraint(Point(0, i), Point(6, i));
+//     }
+    
+//     for (int j = 1; j < 6; ++j) {
+//         cdt.insert_constraint(Point(j, 0), Point(j, 6));
 //     }
 
-// protected:
-//     void paintEvent(QPaintEvent *event) override {
-//         QPainter painter(this);
-//         painter.setRenderHint(QPainter::Antialiasing);
+//     // Ensure the triangulation is valid
+//     assert(cdt.is_valid());
 
-//         // Draw the triangulation
-//         for (auto e = dt.finite_edges_begin(); e != dt.finite_edges_end(); ++e) {
-//             auto segment = dt.segment(e);
-//             painter.drawLine(QPointF(segment.source().x(), segment.source().y()),
-//                              QPointF(segment.target().x(), segment.target().y()));
-//         }
-
-//         // Draw the points
-//         painter.setBrush(Qt::red);
-//         for (const auto &p : points) {
-//             painter.drawEllipse(QPointF(p.x(), p.y()), 3, 3);
+//     int count = 0;
+    
+//     // Loop over edges and count the constrained edges
+//     for (const Edge& e : cdt.finite_edges()) {
+//         if (cdt.is_constrained(e)) {
+//             ++count;
 //         }
 //     }
 
-// private:
-//     std::vector<Point> points;
-//     Delaunay dt;
-// };
+//     std::cout << "The number of resulting constrained edges is: " << count << std::endl;
 
-// int main(int argc, char *argv[]) {
-//     QApplication app(argc, argv);
+//     // Drawing the triangulation
+//     CGAL::draw(cdt);
 
-//     DelaunayWidget widget;
-//     widget.resize(400, 400);
-//     widget.show();
-
-//     return app.exec();
+//     return 0;
 // }
 
-
-#include <CGAL/draw_triangulation_2.h>
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Constrained_Delaunay_triangulation_2.h>
-#include <iostream>
+#include <CGAL/draw_triangulation_2.h>
+#include <vector>
+#include <utility> // For std::pair
+#include "executable.h"
 
+// Define CGAL types
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
-typedef CGAL::Exact_predicates_tag Itag;
-typedef CGAL::Constrained_Delaunay_triangulation_2<K, CGAL::Default, Itag> CDT;
+typedef CGAL::Constrained_Delaunay_triangulation_2<K> CDT;
 typedef CDT::Point Point;
-typedef CDT::Edge Edge;
 
-int main() {
+int main()
+{
+    // Initialize the Constrained Delaunay Triangulation (CDT)  
     CDT cdt;
-    std::cout << "Inserting a grid of 5x5 constraints " << std::endl;
 
-    // Corrected the for-loop syntax and the condition check
-    for (int i = 1; i < 6; ++i) {
-        cdt.insert_constraint(Point(0, i), Point(6, i));
-    }
-    
-    for (int j = 1; j < 6; ++j) {
-        cdt.insert_constraint(Point(j, 0), Point(j, 6));
+    // Define the points from the PSLG (x, y coordinates)  
+    std::vector<Point> points = executable();
+
+    // Insert points into the triangulation  
+    for (const Point& p : points) {  
+        cdt.insert(p);
     }
 
-    // Ensure the triangulation is valid
-    assert(cdt.is_valid());
+    // Define and add the constrained edges (from additional_constraints)  
+    std::vector<std::pair<int, int>> constraints = { 
+        {3, 4}, {5, 6}, {9, 10}, {10, 11}, {11, 12}, {12, 13}, {13, 14},
+        {14, 15}, {15, 16}, {18, 19}
+    };
 
-    int count = 0;
-    
-    // Loop over edges and count the constrained edges
-    for (const Edge& e : cdt.finite_edges()) {
-        if (cdt.is_constrained(e)) {
-            ++count;
-        }
+    // Insert constrained edges based on the provided indices  
+    for (const auto& constraint : constraints) {  
+        cdt.insert_constraint(points[constraint.first], points[constraint.second]);  
     }
 
-    std::cout << "The number of resulting constrained edges is: " << count << std::endl;
-
-    // Drawing the triangulation
+    // Draw the triangulation using CGAL's draw function  
     CGAL::draw(cdt);
 
     return 0;
 }
-
