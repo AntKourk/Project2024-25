@@ -3,13 +3,20 @@
 #include <iostream>
 #include <vector>
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include "executable.h"
 
 // Define CGAL types
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 typedef K::Point_2 Point;
 
-std::vector<Point> executable()
-{
+// Define a structure to hold the results
+// struct OutputData {
+//     std::vector<Point> points;
+//     std::vector<int> region_boundary;
+//     std::vector<std::vector<int>> additional_constraints;
+// };
+
+OutputData executable() {
     // Δημιουργία του property tree
     boost::property_tree::ptree pt;
 
@@ -18,7 +25,7 @@ std::vector<Point> executable()
         read_json("input.json", pt);
     } catch (const boost::property_tree::json_parser_error &e) {
         std::cerr << "Error reading JSON: " << e.what() << std::endl;
-        return {};
+        return {};  // Return empty struct
     }
 
     // Ανάκτηση δεδομένων από το property tree
@@ -42,20 +49,27 @@ std::vector<Point> executable()
         points.push_back(Point(points_x[i], points_y[i]));  // Constructing CGAL Point
     }
 
-    // Εκτύπωση δεδομένων
-    std::cout << "Instance UID: " << instance_uid << std::endl;
-    std::cout << "Number of Points: " << num_points << std::endl;
-    std::cout << "Points X: ";
-    for (const auto& x : points_x) {
-        std::cout << x << " ";
+    // Retrieve additional constraints
+    std::vector<std::vector<int>> additional_constraints;
+    for (const auto& row : pt.get_child("additional_constraints")) {
+        std::vector<int> row_values;  // Temporary vector to store each row
+        for (const auto& value : row.second) {
+            row_values.push_back(value.second.get_value<int>());
+        }
+        additional_constraints.push_back(row_values);  // Add the row to the 2D vector
     }
-    std::cout << std::endl;
 
-    std::cout << "Points Y: ";
-    for (const auto& y : points_y) {
-        std::cout << y << " ";
+    // Retrieve region_boundary
+    std::vector<int> region_boundary;
+    for (const auto& boundary_index : pt.get_child("region_boundary")) {
+        region_boundary.push_back(boundary_index.second.get_value<int>());
     }
-    std::cout << std::endl;
 
-    return points;
+    // Create OutputData struct and populate it
+    OutputData output_data;
+    output_data.points = points;
+    output_data.region_boundary = region_boundary;
+    output_data.additional_constraints = additional_constraints;
+
+    return output_data;  // Return the populated struct
 }
