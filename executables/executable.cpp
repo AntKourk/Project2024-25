@@ -9,13 +9,6 @@
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 typedef K::Point_2 Point;
 
-// Define a structure to hold the results
-// struct OutputData {
-//     std::vector<Point> points;
-//     std::vector<int> region_boundary;
-//     std::vector<std::vector<int>> additional_constraints;
-// };
-
 OutputData executable() {
     // Δημιουργία του property tree
     boost::property_tree::ptree pt;
