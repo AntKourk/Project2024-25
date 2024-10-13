@@ -5,6 +5,7 @@
 #include <utility>
 #include <iostream>
 #include "executable.h"
+#include "flipEdges.h"
 
 // Define CGAL types
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
@@ -29,6 +30,23 @@ int main() {
     // Insert points into the triangulation
     for (const Point& p : points) {  
         cdt.insert(p);
+    }
+
+    // Insert the region boundary as a constrained polygon
+    std::vector<Point> polygon;
+    for (int idx : region_boundary) {
+        if (idx < points.size()) {
+            polygon.push_back(points[idx]);
+        } else {
+            cerr << "Invalid index in region_boundary: " << idx << endl;
+        }
+    }
+
+    // Check if the polygon is valid and insert the constraint
+    if (polygon.size() > 2) {
+        cdt.insert_constraint(polygon.begin(), polygon.end());
+    } else {
+        cerr << "Not enough points to form a boundary." << endl;
     }
 
     // Define and add the constrained edges (from additional_constraints)
@@ -84,11 +102,7 @@ int main() {
     // Draw the triangulation
     CGAL::draw(cdt);
 
-    // OpenGL error checking (make sure an OpenGL context is active)
-    GLenum err;
-    while ((err = glGetError()) != GL_NO_ERROR) {
-        cerr << "OpenGL error: " << err << endl;
-    }
+    flip_edges();
 
     return 0;
 }
