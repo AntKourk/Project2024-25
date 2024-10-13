@@ -56,30 +56,57 @@ typedef CDT::Point Point;
 
 int main()
 {
-    // Initialize the Constrained Delaunay Triangulation (CDT)  
+    // Initialize the Constrained Delaunay Triangulation (CDT)
     CDT cdt;
 
-    // Define the points from the PSLG (x, y coordinates)  
+    // Get points from the executable function
     std::vector<Point> points = executable();
 
-    // Insert points into the triangulation  
+    // Insert points into the triangulation
     for (const Point& p : points) {  
         cdt.insert(p);
     }
 
-    // Define and add the constrained edges (from additional_constraints)  
+    // Define and add the constrained edges (from additional_constraints)
     std::vector<std::pair<int, int>> constraints = { 
         {3, 4}, {5, 6}, {9, 10}, {10, 11}, {11, 12}, {12, 13}, {13, 14},
         {14, 15}, {15, 16}, {18, 19}
     };
 
-    // Insert constrained edges based on the provided indices  
+    // Insert constrained edges based on the provided indices
     for (const auto& constraint : constraints) {  
-        cdt.insert_constraint(points[constraint.first], points[constraint.second]);  
+        if (constraint.first < points.size() && constraint.second < points.size()) {
+            cdt.insert_constraint(points[constraint.first], points[constraint.second]);
+        } else {
+            std::cerr << "Invalid constraint index: " << constraint.first << ", " << constraint.second << std::endl;
+        }
     }
 
-    // Draw the triangulation using CGAL's draw function  
-    CGAL::draw(cdt);
+    // Calculate the number of points
+    size_t num_points = points.size();
+
+    // Print number of points
+    std::cout << "Number of Points: " << num_points << std::endl;
+
+    // Print X and Y coordinates of points
+    std::cout << "Points X: ";
+    for (const auto& p : points) {
+        std::cout << p.x() << " "; // Accessing x-coordinate
+    }
+    std::cout << "\nPoints Y: ";
+    for (const auto& p : points) {
+        std::cout << p.y() << " "; // Accessing y-coordinate
+    }
+    std::cout << std::endl;
+
+    // Uncomment this if you want to draw the triangulation
+    // CGAL::draw(cdt);
+
+    // OpenGL error checking
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR) {
+        std::cerr << "OpenGL error: " << err << std::endl;
+    }
 
     return 0;
 }
