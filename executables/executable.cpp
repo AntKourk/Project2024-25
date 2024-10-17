@@ -9,13 +9,13 @@
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 typedef K::Point_2 Point;
 
-OutputData executable() {
+InputData executable() {
     // Δημιουργία του property tree
     boost::property_tree::ptree pt;
 
     // Ανάγνωση από JSON αρχείο
     try {
-        read_json("input.json", pt);
+        read_json("../input.json", pt);
     } catch (const boost::property_tree::json_parser_error &e) {
         std::cerr << "Error reading JSON: " << e.what() << std::endl;
         return {};  // Return empty struct
@@ -58,11 +58,11 @@ OutputData executable() {
         region_boundary.push_back(boundary_index.second.get_value<int>());
     }
 
-    // Create OutputData struct and populate it
-    OutputData output_data;
-    output_data.points = points;
-    output_data.region_boundary = region_boundary;
-    output_data.additional_constraints = additional_constraints;
+    // Create inputData struct and populate it
+    InputData input_data;
+    input_data.points = points;
+    input_data.region_boundary = region_boundary;
+    input_data.additional_constraints = additional_constraints;
 
-    return output_data;  // Return the populated struct
+    return input_data;  // Return the populated struct
 }
