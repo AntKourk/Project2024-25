@@ -33,7 +33,7 @@ if (NOT Boost_FOUND)
 endif()
 
 # Create the executable with both source files
-add_executable(hello_cgal flipEdges.cpp executable.cpp hello_cgal.cpp)
+add_executable(hello_cgal output.cpp flipEdges.cpp executable.cpp hello_cgal.cpp)
 
 # Link the executable to CGAL, Boost, Qt5, OpenGL, and GLEW libraries
 target_link_libraries(hello_cgal 
