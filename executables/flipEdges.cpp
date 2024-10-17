@@ -1,81 +1,110 @@
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
-#include <CGAL/Constrained_Delaunay_triangulation_2.h>
+#include <CGAL/Delaunay_triangulation_2.h>
 #include <CGAL/draw_triangulation_2.h>
-#include <cmath> // Για τις γωνίες
-#include "flipEdges.h"
+#include <cmath> // For angle calculations
 
-// Ορισμός των τύπων της CGAL
+// Define CGAL types
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
-typedef CGAL::Constrained_Delaunay_triangulation_2<K> CDT;
-typedef CDT::Point Point;
-typedef CDT::Edge Edge;
-typedef CDT::Face_handle FaceHandle;
+typedef CGAL::Constrained_Delaunay_triangulation_2<K> DT;  // Plain Delaunay triangulation
+typedef DT::Point Point;
+typedef DT::Edge Edge;
+typedef DT::Face_handle FaceHandle;
 
-// Συνάρτηση για τον υπολογισμό της γωνίας μεταξύ δύο σημείων και του κοινό σημείο
+// Function to calculate the angle between two points and a common vertex
 template <typename P>
 double angle_between(const P& p1, const P& p2, const P& p3) {
     double a = std::sqrt(CGAL::squared_distance(p2, p3));
     double b = std::sqrt(CGAL::squared_distance(p1, p3));
     double c = std::sqrt(CGAL::squared_distance(p1, p2));
 
-    // Χρήση του νόμου του συνημιτόνου για τον υπολογισμό της γωνίας
+    // Cosine rule to calculate the angle
     double cos_angle = (b * b + c * c - a * a) / (2 * b * c);
-    return std::acos(cos_angle) * 180.0 / M_PI; // Επιστροφή της γωνίας σε μοίρες
+    return std::acos(cos_angle) * 180.0 / M_PI; // Return angle in degrees
 }
 
-// Συνάρτηση που ελέγχει αν ένα τρίγωνο είναι αμβλυγώνιο (έχει γωνία > 90)
+// Function to check if a triangle is obtuse (has an angle > 90 degrees)
 template <typename FaceHandle>
 bool is_obtuse_triangle(const FaceHandle& face) {
     double angle1 = angle_between(face->vertex(0)->point(), face->vertex(1)->point(), face->vertex(2)->point());
     double angle2 = angle_between(face->vertex(1)->point(), face->vertex(2)->point(), face->vertex(0)->point());
     double angle3 = angle_between(face->vertex(2)->point(), face->vertex(0)->point(), face->vertex(1)->point());
     
-    // Έλεγχος αν κάποια από τις γωνίες είναι μεγαλύτερη από 90 μοίρες
+    // Check if any angle is greater than 90 degrees
     return (angle1 > 90.0 || angle2 > 90.0 || angle3 > 90.0);
 }
 
-// Συνάρτηση για την περιστροφή της διαγωνίου
-template <typename CDT>
-void flip_if_obtuse(CDT& cdt) {
-    for (auto edge = cdt.finite_edges_begin(); edge != cdt.finite_edges_end(); ++edge) {
-        FaceHandle face1 = edge->first; // Ένα τρίγωνο
-        FaceHandle face2 = face1->neighbor(edge->second); // Το γειτονικό τρίγωνο
+// Function to print the edges of the triangulation
+template <typename DT>
+void print_edges(const DT& dt) {
+    std::cout << "Edges:\n";
+    for (auto edge = dt.finite_edges_begin(); edge != dt.finite_edges_end(); ++edge) {
+        auto v1 = edge->first->vertex((edge->second + 1) % 3)->point();
+        auto v2 = edge->first->vertex((edge->second + 2) % 3)->point();
+        std::cout << "(" << v1.x() << ", " << v1.y() << ") - (" 
+                  << v2.x() << ", " << v2.y() << ")\n";
+    }
+}
+
+// Function to print the points of the triangulation
+template <typename DT>
+void print_points(const DT& dt) {
+    std::cout << "Points:\n";
+    for (auto vertex = dt.finite_vertices_begin(); vertex != dt.finite_vertices_end(); ++vertex) {
+        std::cout << "(" << vertex->point().x() << ", " << vertex->point().y() << ")\n";
+    }
+}
+
+// Function to flip the diagonal if there are obtuse triangles
+template <typename DT>
+void flip_if_obtuse(DT& dt) {
+    for (auto edge = dt.finite_edges_begin(); edge != dt.finite_edges_end(); ++edge) {
+        FaceHandle face1 = edge->first; // One triangle
+        FaceHandle face2 = face1->neighbor(edge->second); // Neighboring triangle
         
-        // Ελέγχουμε αν και τα δύο τρίγωνα έχουν αμβλείες γωνίες
+        // Check if any of the triangles is obtuse
         if (is_obtuse_triangle(face1) || is_obtuse_triangle(face2)) {
-            // Δοκιμάζουμε την περιστροφή της διαγωνίου
-            if (cdt.is_flipable(edge->first, edge->second)) {  // Corrected line
-                cdt.flip(edge->first, edge->second); // Αν είναι επιτρεπτό, περιστρέφουμε τη διαγώνιο
+            // Try flipping the diagonal
+            if (dt.is_flipable(edge->first, edge->second)) {
+                dt.flip(edge->first, edge->second); // Flip the diagonal if possible
+                std::cout << "Flipping edge between triangles\n";
+                print_edges(dt); // Print edges after flip
             }
         }
     }
 }
 
 int flip_edges() {
-    // Αρχικοποίηση της Τριγωνοποίησης Delaunay με περιορισμούς (CDT)
-    CDT cdt;
+    // Initialize plain Delaunay triangulation (no constraints)
+    DT dt;
 
-    // Παράδειγμα σημείων (μπορείς να τα αντικαταστήσεις με αυτά που παίρνεις από το executable)
+    // Example points that will generate obtuse triangles
     std::vector<Point> points = {
-        Point(7817, 13), Point(2871, 1116), Point(523, 8263), Point(734, 9043),
-        Point(4077, 8616), Point(7583, 9635), Point(7855, 8978), Point(6153, 6995), Point(5927, 6541), Point(5267, 5779)
+        Point(0, 0),    // Bottom left
+        Point(5, 0),    // Bottom right
+        // Point(2.5, 5),  // Top middle
+        Point(1, 2),    // Internal point
+        Point(4, 2)     // Internal point
     };
 
-    // Εισαγωγή σημείων στην τριγωνοποίηση
+    // Insert points into the triangulation
     for (const Point& p : points) {
-        cdt.insert(p);
+        dt.insert(p);
     }
 
-    // Ορισμός και προσθήκη περιορισμένων ακμών
-    // cdt.insert_constraint(points[0], points[3]);
-    // cdt.insert_constraint(points[1], points[2]);
-    // cdt.insert_constraint(points[4], points[7]);
+    // Print points and edges before flipping
+    std::cout << "Before flipping edges:\n";
+    print_points(dt);
+    print_edges(dt);
 
-    // Δοκιμή περιστροφής ακμών για να βελτιώσουμε τα τρίγωνα
-    flip_if_obtuse(cdt);
+    CGAL::draw(dt);
+    // Flip obtuse edges if possible
+    flip_if_obtuse(dt);
 
-    // Σχεδιασμός της τριγωνοποίησης
-    CGAL::draw(cdt);
+    // Print edges after flipping
+    std::cout << "After flipping edges:\n";
+    print_edges(dt);
+
+    CGAL::draw(dt);
 
     return 0;
 }
