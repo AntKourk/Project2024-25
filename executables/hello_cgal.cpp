@@ -7,6 +7,7 @@
 #include "executable.h"
 #include "flipEdges.h"
 #include "output.h"
+#include "steiner_points.h"
 
 // Define CGAL types
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
@@ -80,42 +81,44 @@ int main() {
     size_t num_points = points.size();
 
     // Print number of points
-    cout << "Number of Points: " << num_points << endl;
+    // cout << "Number of Points: " << num_points << endl;
 
     // Print X and Y coordinates of points
-    cout << "Points X: ";
-    for (const auto& p : points) {
-        cout << p.x() << " "; 
-    }
-    cout << "\nPoints Y: ";
-    for (const auto& p : points) {
-        cout << p.y() << " ";
-    }
-    cout << endl;
+    // cout << "Points X: ";
+    // for (const auto& p : points) {
+    //     cout << p.x() << " "; 
+    // }
+    // cout << "\nPoints Y: ";
+    // for (const auto& p : points) {
+    //     cout << p.y() << " ";
+    // }
+    // cout << endl;
 
     // Print Additional Constraints
-    cout << "Additional Constraints: ";
-    for (const auto& row : constraints) {
-        cout << "\n";
-        for (const auto& value : row) {
-            cout << value << " ";
-        }
-    }
-    cout << "\n";
+    // cout << "Additional Constraints: ";
+    // for (const auto& row : constraints) {
+    //     cout << "\n";
+    //     for (const auto& value : row) {
+    //         cout << value << " ";
+    //     }
+    // }
+    // cout << "\n";
 
     // Print Region Boundary
-    cout << "Region Boundary: ";
-    for (const auto& boundary : region_boundary) {
-        cout << boundary << " ";
-    }
-    cout << endl;
+    // cout << "Region Boundary: ";
+    // for (const auto& boundary : region_boundary) {
+    //     cout << boundary << " ";
+    // }
+    // cout << endl;
 
     // Draw the triangulation
-    CGAL::draw(cdt);
+    // CGAL::draw(cdt);
 
-    output();
+    // output();
 
     // flip_edges();
+
+    steiner_points();
 
     return 0;
 }
