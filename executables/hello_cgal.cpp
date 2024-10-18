@@ -118,7 +118,7 @@ int main() {
 
     // flip_edges();
 
-    steiner_points();
+     steiner_points();
 
     return 0;
 }
