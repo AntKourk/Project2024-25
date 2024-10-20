@@ -62,7 +62,7 @@ void print_points(const DT& dt) {
 
 // Function to add Steiner points instead of flipping edges when a triangle is obtuse
 template <typename DT>
-void add_steiner_if_obtuse(DT& dt) {
+void add_steiner_if_obtuse_center(DT& dt) {
     bool added_steiner = false;
     std::vector<Point> steiner_points;
 
@@ -121,7 +121,7 @@ int center_steiner_points(std::vector<Point> points) {
 
     CGAL::draw(dt);
     // Add Steiner points at the midpoint of the edge opposite obtuse angles
-    add_steiner_if_obtuse(dt);
+    add_steiner_if_obtuse_center(dt);
 
     // Print edges after adding Steiner points
     std::cout << "After adding Steiner points:\n";

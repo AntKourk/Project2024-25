@@ -123,8 +123,8 @@ int main() {
 
 
     //  steiner_points(points);
-    probolh_steiner_points(points);
-    // center_steiner_points(points);
+    // probolh_steiner_points(points);
+    center_steiner_points(points);
 
     return 0;
 }
