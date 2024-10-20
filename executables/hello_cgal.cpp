@@ -8,6 +8,8 @@
 #include "flipEdges.h"
 #include "output.h"
 #include "steiner_points.h"
+#include "probolh.h"
+#include "center.h"
 
 // Define CGAL types
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
@@ -118,7 +120,11 @@ int main() {
 
     // flip_edges();
 
-     steiner_points();
+
+
+    //  steiner_points(points);
+    probolh_steiner_points(points);
+    // center_steiner_points(points);
 
     return 0;
 }

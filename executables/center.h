@@ -9,4 +9,5 @@ typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 typedef CGAL::Constrained_Delaunay_triangulation_2<K> DT; 
 typedef DT::Point Point;
 
-int steiner_points(std::vector<Point> points);
+
+int center_steiner_points(std::vector<Point> points);
