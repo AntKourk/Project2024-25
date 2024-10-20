@@ -1,12 +1,10 @@
-//στεινερ στο εσωτερικου κυρτου πολυγωνου που σχηματιζουν αμβλυγωνια τριγωνα
+// //shmeia steiner sto meso thw pleuras apenanti apo thn ambleia
 
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Delaunay_triangulation_2.h>
 #include <CGAL/draw_triangulation_2.h>
-#include <CGAL/convex_hull_2.h>
-#include <vector>
-#include <iostream>
 #include <cmath> // For angle calculations
+#include "center.h"
 
 // Define CGAL types
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
@@ -41,12 +39,6 @@ int obtuse_vertex_index(const FaceHandle& face) {
     return -1; // No obtuse angle
 }
 
-// Function to calculate the circumcenter of a triangle
-Point circumcenter(const Point& p1, const Point& p2, const Point& p3) {
-    // Using the CGAL function to calculate the circumcenter
-    return CGAL::circumcenter(p1, p2, p3);
-}
-
 // Function to print the edges of the triangulation
 template <typename DT>
 void print_edges(const DT& dt) {
@@ -57,14 +49,6 @@ void print_edges(const DT& dt) {
         std::cout << "(" << v1.x() << ", " << v1.y() << ") - (" 
                   << v2.x() << ", " << v2.y() << ")\n";
     }
-    // std::vector<Point> polygon;
-    // for (int idx : region_boundary) {
-    //     if (idx < points.size()) {
-    //         polygon.push_back(points[idx]);
-    //     } else {
-    //         cerr << "Invalid index in region_boundary: " << idx << endl;
-    //     }
-    // }
 }
 
 // Function to print the points of the triangulation
@@ -76,26 +60,25 @@ void print_points(const DT& dt) {
     }
 }
 
-// Function to add Steiner points at the circumcenters of obtuse triangles inside a convex polygon
+// Function to add Steiner points instead of flipping edges when a triangle is obtuse
 template <typename DT>
-std::vector<Point> add_steiner_in_convex_polygon(DT& dt, std::vector<Point> steiner_points) {
+void add_steiner_if_obtuse(DT& dt) {
     bool added_steiner = false;
+    std::vector<Point> steiner_points;
 
     for (auto face = dt.finite_faces_begin(); face != dt.finite_faces_end(); ++face) {
         int obtuse_vertex = obtuse_vertex_index(face);
         if (obtuse_vertex != -1) {
             // Get the vertices of the obtuse triangle
-            Point p1 = face->vertex(0)->point();
-            Point p2 = face->vertex(1)->point();
-            Point p3 = face->vertex(2)->point();
+            Point p1 = face->vertex((obtuse_vertex + 1) % 3)->point();
+            Point p2 = face->vertex((obtuse_vertex + 2) % 3)->point();
 
-            // Calculate the circumcenter of the triangle
-            Point circumcenter_point = circumcenter(p1, p2, p3);
+            // Calculate the midpoint of the edge opposite the obtuse angle
+            Point midpoint((p1.x() + p2.x()) / 2, (p1.y() + p2.y()) / 2);
 
             // Add the Steiner point to the list
-            steiner_points.push_back(circumcenter_point);
-            std::cout << "Adding Steiner point at (" << circumcenter_point.x() << ", " 
-                      << circumcenter_point.y() << ")\n";
+            steiner_points.push_back(midpoint);
+            std::cout << "Adding Steiner point at (" << midpoint.x() << ", " << midpoint.y() << ")\n";
             added_steiner = true;
         }
     }
@@ -109,25 +92,21 @@ std::vector<Point> add_steiner_in_convex_polygon(DT& dt, std::vector<Point> stei
         std::cout << "After adding Steiner points:\n";
         print_points(dt);
         print_edges(dt);
-        return steiner_points;
     } else {
         std::cout << "No obtuse triangles found.\n";
-        return {};
     }
 }
 
-int steiner_points(std::vector<Point> points) {
+int center_steiner_points(std::vector<Point> points) {
     // Initialize Delaunay triangulation
     DT dt;
-    std::vector<Point> steiner_points;
 
-    // Example points that form a convex polygon
+    // Example points that will generate obtuse triangles
     // std::vector<Point> points = {
     //     Point(0, 0),    // Bottom left
-    //     Point(6, 0),    // Bottom right
-    //     Point(4, 5),    // Top right
-    //     Point(1, 4),    // Top left
-    //     Point(3, 2)     // Internal point
+    //     Point(5, 0),    // Bottom right
+    //     Point(1, 2),    // Internal point
+    //     Point(4, 2)     // Internal point
     // };
 
     // Insert points into the triangulation
@@ -141,26 +120,15 @@ int steiner_points(std::vector<Point> points) {
     print_edges(dt);
 
     CGAL::draw(dt);
-
-    // Add Steiner points in obtuse triangles within the convex polygon
-    steiner_points = add_steiner_in_convex_polygon(dt, steiner_points);
-
-    std::cout << "\nSteiner Points X:\n";
-    for (const Point& p : steiner_points) {
-        std::cout << p.x() << "\n"; 
-    }
-
-    std::cout << "Steiner Points Y:\n";
-    for (const Point& p : steiner_points) {
-        std::cout << p.y() << "\n"; 
-    }
+    // Add Steiner points at the midpoint of the edge opposite obtuse angles
+    add_steiner_if_obtuse(dt);
 
     // Print edges after adding Steiner points
-    std::cout << "\nAfter adding Steiner points:\n";
+    std::cout << "After adding Steiner points:\n";
     print_edges(dt);
-    print_points(dt);
 
     CGAL::draw(dt);
 
     return 0;
+    
 }
