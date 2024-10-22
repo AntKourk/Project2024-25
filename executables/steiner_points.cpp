@@ -14,6 +14,7 @@ typedef CGAL::Constrained_Delaunay_triangulation_2<K> DT;  // Constrained Delaun
 typedef DT::Point Point;
 typedef DT::Edge Edge;
 typedef DT::Face_handle FaceHandle;
+typedef K::FT FT;
 
 // Function to calculate the angle between two points and a common vertex
 template <typename P>
@@ -41,11 +42,35 @@ int obtuse_vertex_index(const FaceHandle& face) {
     return -1; // No obtuse angle
 }
 
-// Function to calculate the circumcenter of a triangle
-Point circumcenter(const Point& p1, const Point& p2, const Point& p3) {
-    // Using the CGAL function to calculate the circumcenter
-    return CGAL::circumcenter(p1, p2, p3);
+Point calculate_centroid(const Point& p1, const Point& p2, const Point& p3) {
+    FT cx = (p1.x() + p2.x() + p3.x()) / 3;
+    FT cy = (p1.y() + p2.y() + p3.y()) / 3;
+    return Point(cx, cy);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Function to print the edges of the triangulation
 template <typename DT>
@@ -78,9 +103,8 @@ void print_points(const DT& dt) {
 
 // Function to add Steiner points at the circumcenters of obtuse triangles inside a convex polygon
 template <typename DT>
-std::vector<Point> add_steiner_in_convex_polygon(DT& dt, std::vector<Point> steiner_points) {
+std::vector<Point> add_steiner_in_centroid(DT& dt, std::vector<Point> steiner_points) {
     bool added_steiner = false;
-
     for (auto face = dt.finite_faces_begin(); face != dt.finite_faces_end(); ++face) {
         int obtuse_vertex = obtuse_vertex_index(face);
         if (obtuse_vertex != -1) {
@@ -89,16 +113,21 @@ std::vector<Point> add_steiner_in_convex_polygon(DT& dt, std::vector<Point> stei
             Point p2 = face->vertex(1)->point();
             Point p3 = face->vertex(2)->point();
 
-            // Calculate the circumcenter of the triangle
-            Point circumcenter_point = circumcenter(p1, p2, p3);
+            // Calculate the centroid of the triangle
+            Point centroid_point = calculate_centroid(p1, p2, p3);
 
-            // Add the Steiner point to the list
-            steiner_points.push_back(circumcenter_point);
-            std::cout << "Adding Steiner point at (" << circumcenter_point.x() << ", " 
-                      << circumcenter_point.y() << ")\n";
+            // Add the Steiner point (centroid) to the list
+            steiner_points.push_back(centroid_point);
+            std::cout << "Adding Steiner point at (" << centroid_point.x() << ", " 
+                    << centroid_point.y() << ")\n";
             added_steiner = true;
         }
     }
+
+
+
+
+
 
     // Insert Steiner points into the triangulation and re-triangulate
     for (const Point& p : steiner_points) {
@@ -116,7 +145,7 @@ std::vector<Point> add_steiner_in_convex_polygon(DT& dt, std::vector<Point> stei
     }
 }
 
-int steiner_points(std::vector<Point> points) {
+int centroid_steiner_points(std::vector<Point> points) {
     // Initialize Delaunay triangulation
     DT dt;
     std::vector<Point> steiner_points;
@@ -143,7 +172,7 @@ int steiner_points(std::vector<Point> points) {
     CGAL::draw(dt);
 
     // Add Steiner points in obtuse triangles within the convex polygon
-    steiner_points = add_steiner_in_convex_polygon(dt, steiner_points);
+    steiner_points = add_steiner_in_centroid(dt, steiner_points);
 
     std::cout << "\nSteiner Points X:\n";
     for (const Point& p : steiner_points) {
