@@ -4,7 +4,7 @@
 #include <vector>
 
 // Define CGAL types
-typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+typedef CGAL::Exact_predicates_exact_constructions_kernel K;
 typedef K::Point_2 Point;  // This defines the Point type as CGAL's Point_2 type
 
 struct InputData {

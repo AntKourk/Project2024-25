@@ -2,11 +2,11 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <iostream>
 #include <vector>
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include "executable.h"
 
 // Define CGAL types
-typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+typedef CGAL::Exact_predicates_exact_constructions_kernel K;
 typedef K::Point_2 Point;
 
 InputData executable() {

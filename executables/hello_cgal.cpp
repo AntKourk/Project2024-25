@@ -1,4 +1,4 @@
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include <CGAL/Constrained_Delaunay_triangulation_2.h>
 #include <CGAL/draw_triangulation_2.h>
 #include <vector>
@@ -13,9 +13,10 @@
 #include "circumcenter.h"
 
 // Define CGAL types
-typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+typedef CGAL::Exact_predicates_exact_constructions_kernel K;
 typedef CGAL::Constrained_Delaunay_triangulation_2<K> CDT;
 typedef CDT::Point Point;
+
 
 using namespace std;
 
@@ -65,7 +66,7 @@ int main() {
     }
 
     // Define and add the constrained edges (from additional_constraints)
-    const auto& constraints = input.additional_constraints;
+    const std::vector<std::vector<int>>& constraints = input.additional_constraints;
 
     // Insert constrained edges based on the provided indices
     for (const auto& constraint : constraints) {  
@@ -126,7 +127,7 @@ int main() {
     // centroid_steiner_points(points);
      probolh_steiner_points(points);
     // center_steiner_points(points);
-    //circumcenter_steiner_points(points);
+    // circumcenter_steiner_points(points, constraints);
 
     return 0;
 }
