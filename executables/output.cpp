@@ -2,16 +2,16 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <iostream>
 #include <vector>
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include "output.h"
 #include "executable.h"
 #include <string>
 
 // Define CGAL types
-typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+typedef CGAL::Exact_predicates_exact_constructions_kernel K;
 typedef K::Point_2 Point;
 
-void output() {
+void output(const std::vector<std::pair<Point, Point>>& edges) {
     // Δημιουργία του property tree
     boost::property_tree::ptree pt;
 
@@ -71,7 +71,7 @@ void output() {
 
     std::vector<std::string> steiner_points_x = {"123/456", "789", "1011/1213"};
     std::vector<std::string> steiner_points_y = {"314/159", "265", "358/979"};
-    std::vector<std::vector<int>> edges = {{0, 7}, {7, 8}, {8, 9}};
+    // std::vector<std::vector<int>> edges = {{0, 7}, {7, 8}, {8, 9}};
 
     // Create the output property tree
     boost::property_tree::ptree output_pt;
@@ -102,14 +102,27 @@ void output() {
     boost::property_tree::ptree edges_node;
     for (const auto& edge : edges) {
         boost::property_tree::ptree edge_node;
-        boost::property_tree::ptree edge_first, edge_second;
-        edge_first.put("", edge[0]);
-        edge_second.put("", edge[1]);
-        edge_node.push_back(std::make_pair("", edge_first));
-        edge_node.push_back(std::make_pair("", edge_second));
+        
+        // For each edge's first point
+        boost::property_tree::ptree edge_first;
+        edge_first.put("x", edge.first.x());
+        edge_first.put("y", edge.first.y());
+
+        // For each edge's second point
+        boost::property_tree::ptree edge_second;
+        edge_second.put("x", edge.second.x());
+        edge_second.put("y", edge.second.y());
+
+        // Add first and second points to the edge node
+        edge_node.add_child("first", edge_first);
+        edge_node.add_child("second", edge_second);
+
+        // Add the edge node to edges_node
         edges_node.push_back(std::make_pair("", edge_node));
     }
+    // Add edges_node to the main output property tree
     output_pt.add_child("edges", edges_node);
+
 
     // Write the output JSON to a file
     try {
