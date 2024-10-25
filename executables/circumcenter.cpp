@@ -1,15 +1,16 @@
 //στεινερ στο εσωτερικου κυρτου πολυγωνου που σχηματιζουν αμβλυγωνια τριγωνα
 
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include <CGAL/Delaunay_triangulation_2.h>
 #include <CGAL/draw_triangulation_2.h>
 #include <CGAL/convex_hull_2.h>
 #include <vector>
 #include <iostream>
 #include <cmath> // For angle calculations
+#include <CGAL/Segment_2.h>
 
 // Define CGAL types
-typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+typedef CGAL::Exact_predicates_exact_constructions_kernel K;
 typedef CGAL::Constrained_Delaunay_triangulation_2<K> DT;  // Constrained Delaunay triangulation
 typedef DT::Point Point;
 typedef DT::Edge Edge;
@@ -19,9 +20,9 @@ typedef K::FT FT;
 // Function to calculate the angle between two points and a common vertex
 template <typename P>
 double angle_between(const P& p1, const P& p2, const P& p3) {
-    double a = std::sqrt(CGAL::squared_distance(p2, p3));
-    double b = std::sqrt(CGAL::squared_distance(p1, p3));
-    double c = std::sqrt(CGAL::squared_distance(p1, p2));
+    double a = std::sqrt(CGAL::to_double(CGAL::squared_distance(p2, p3)));
+    double b = std::sqrt(CGAL::to_double(CGAL::squared_distance(p1, p3)));
+    double c = std::sqrt(CGAL::to_double(CGAL::squared_distance(p1, p2)));
 
     // Cosine rule to calculate the angle
     double cos_angle = (b * b + c * c - a * a) / (2 * b * c);
@@ -42,11 +43,46 @@ int obtuse_vertex_index(const FaceHandle& face) {
     return -1; // No obtuse angle
 }
 
+template <typename FaceHandle>
+std::pair<int, double> obtuse_vertex_index_and_angle(const FaceHandle& face) {
+    double angle1 = angle_between(face->vertex(0)->point(), face->vertex(1)->point(), face->vertex(2)->point());
+    double angle2 = angle_between(face->vertex(1)->point(), face->vertex(2)->point(), face->vertex(0)->point());
+    double angle3 = angle_between(face->vertex(2)->point(), face->vertex(0)->point(), face->vertex(1)->point());
+    
+    if (angle1 > 90.0) return std::make_pair(0, angle1);
+    if (angle2 > 90.0) return std::make_pair(1, angle2);
+    if (angle3 > 90.0) return std::make_pair(2, angle3);
+    
+    return std::make_pair(-1, 0.0);  // No obtuse angle
+}
+
 // Function to calculate the circumcenter of a triangle
 Point circumcenter(const Point& p1, const Point& p2, const Point& p3) {
     // Using the CGAL function to calculate the circumcenter
     return CGAL::circumcenter(p1, p2, p3);
 }
+
+// // Check if point p is inside the constraints defined by the pairs of indices
+// bool is_inside_constraints(const Point& p, const std::vector<std::vector<int>>& constraints, const std::vector<Point>& points) {
+//     for (const auto& constraint : constraints) {
+//         if (constraint.size() == 2) { // Ensure constraint is a pair
+//             int idx1 = constraint[0];
+//             int idx2 = constraint[1];
+
+//             // Ensure the indices are valid
+//             if (idx1 < points.size() && idx2 < points.size()) {
+//                 // Create a segment from the two points
+//                 CGAL::Segment_2<Traits> segment(points[idx1], points[idx2]);
+//                 // Check if the point is on the segment
+//                 if (segment.has_on(p)) {
+//                     return true; // Point is on this constraint segment
+//                 }
+//             }
+//         }
+//     }
+//     return false; // Point is not on any constraint segment
+// }
+
 
 // Function to print the edges of the triangulation
 template <typename DT>
@@ -58,14 +94,6 @@ void print_edges(const DT& dt) {
         std::cout << "(" << v1.x() << ", " << v1.y() << ") - (" 
                   << v2.x() << ", " << v2.y() << ")\n";
     }
-    // std::vector<Point> polygon;
-    // for (int idx : region_boundary) {
-    //     if (idx < points.size()) {
-    //         polygon.push_back(points[idx]);
-    //     } else {
-    //         cerr << "Invalid index in region_boundary: " << idx << endl;
-    //     }
-    // }
 }
 
 // Function to print the points of the triangulation
@@ -77,27 +105,25 @@ void print_points(const DT& dt) {
     }
 }
 
-// Function to add Steiner points at the circumcenters of obtuse triangles inside a convex polygon
 template <typename DT>
-std::vector<Point> add_steiner_in_circumcenter(DT& dt, std::vector<Point> steiner_points) {
+std::vector<Point> add_steiner_in_circumcenter(DT& dt, std::vector<Point> steiner_points, const std::vector<std::vector<int>>& constraints) {
     bool added_steiner = false;
 
     for (auto face = dt.finite_faces_begin(); face != dt.finite_faces_end(); ++face) {
         int obtuse_vertex = obtuse_vertex_index(face);
         if (obtuse_vertex != -1) {
-            // Get the vertices of the obtuse triangle
             Point p1 = face->vertex(0)->point();
             Point p2 = face->vertex(1)->point();
             Point p3 = face->vertex(2)->point();
-
-            // Calculate the circumcenter of the triangle
             Point circumcenter_point = circumcenter(p1, p2, p3);
 
-            // Add the Steiner point to the list
-            steiner_points.push_back(circumcenter_point);
-            std::cout << "Adding Steiner point at (" << circumcenter_point.x() << ", " 
-                      << circumcenter_point.y() << ")\n";
-            added_steiner = true;
+            // Check if circumcenter is within constraints
+            //if (is_inside_constraints(circumcenter_point, steiner_points, constraints)) {
+                steiner_points.push_back(circumcenter_point);
+                std::cout << "Adding Steiner point at (" << circumcenter_point.x() << ", " 
+                          << circumcenter_point.y() << ")\n";
+                added_steiner = true;
+            //}
         }
     }
 
@@ -118,9 +144,14 @@ std::vector<Point> add_steiner_in_circumcenter(DT& dt, std::vector<Point> steine
     }
 }
 
-int circumcenter_steiner_points(std::vector<Point> points) {
+int circumcenter_steiner_points(std::vector<Point> points, const std::vector<std::vector<int>>& constraints) {
     // Initialize Delaunay triangulation
     DT dt;
+
+    bool obtuse_exists = true;
+    int obtuse_count = 0;
+    int iterations = 0;
+    
     std::vector<Point> steiner_points;
 
     // Example points that form a convex polygon
@@ -144,8 +175,65 @@ int circumcenter_steiner_points(std::vector<Point> points) {
 
     CGAL::draw(dt);
 
-    // Add Steiner points in obtuse triangles within the convex polygon
-    steiner_points = add_steiner_in_circumcenter(dt, steiner_points);
+    obtuse_count = 0;  
+    for (auto face = dt.finite_faces_begin(); face != dt.finite_faces_end(); ++face) {
+        int obtuse_vertex = obtuse_vertex_index(face);
+        if (obtuse_vertex != -1) {
+            obtuse_count++;
+        }
+    }
+    
+    std::cout << "Obtuse triangles before adding Steiner points in iteration 0" << ": " << obtuse_count << "\n";
+
+    while (obtuse_exists && iterations <= 15) {
+        
+        add_steiner_in_circumcenter(dt, steiner_points, constraints);
+        
+        obtuse_exists = false;
+        obtuse_count = 0;  
+        // for (auto face = dt.finite_faces_begin(); face != dt.finite_faces_end(); ++face) {
+        //     int obtuse_vertex = obtuse_vertex_index(face);
+        //     if (obtuse_vertex != -1) {
+                
+        //         obtuse_exists = true;
+        //         obtuse_count++;
+        //     }
+        // }
+        
+        // std::cout << "Obtuse triangles after adding Steiner points in iteration " << iterations + 1 << ": " << obtuse_count << "\n";
+        // iterations++;
+
+
+        for (auto face = dt.finite_faces_begin(); face != dt.finite_faces_end(); ++face) {
+            auto obtuse = obtuse_vertex_index_and_angle(face);
+            auto obtuse_vertex = std::get<0>(obtuse);
+            auto obtuse_angle = std::get<1>(obtuse);
+            if (obtuse_vertex != -1) {
+                std::cout << obtuse_vertex << "\n";
+                obtuse_exists = true;
+                obtuse_count++;
+
+                // Get coordinates of the obtuse vertex and print detailed information
+                Point obtuse_point = face->vertex(obtuse_vertex)->point();
+                std::cout << "Obtuse triangle found at vertex (" 
+                        << obtuse_point.x() << ", " << obtuse_point.y() << ")\n";
+                std::cout << "Obtuse angle: " << obtuse_angle << " degrees\n";
+
+                // Print the coordinates of the other two vertices
+                Point p1 = face->vertex((obtuse_vertex + 1) % 3)->point();
+                Point p2 = face->vertex((obtuse_vertex + 2) % 3)->point();
+                std::cout << "Other vertices: (" << p1.x() << ", " << p1.y() << ") and ("
+                        << p2.x() << ", " << p2.y() << ")\n\n";
+            }
+        }
+
+        std::cout << "Obtuse triangles after adding Steiner points in iteration " << iterations + 1 
+                << ": " << obtuse_count << "\n";
+
+        CGAL::draw(dt);
+
+    }
+
 
     std::cout << "\nSteiner Points X:\n";
     for (const Point& p : steiner_points) {

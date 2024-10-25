@@ -1,10 +1,10 @@
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include <CGAL/Delaunay_triangulation_2.h>
 #include <CGAL/draw_triangulation_2.h>
 #include <cmath> // For angle calculations
 
 // Define CGAL types
-typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+typedef CGAL::Exact_predicates_exact_constructions_kernel K;
 typedef CGAL::Constrained_Delaunay_triangulation_2<K> DT;  // Plain Delaunay triangulation
 typedef DT::Point Point;
 typedef DT::Edge Edge;
@@ -13,9 +13,9 @@ typedef DT::Face_handle FaceHandle;
 // Function to calculate the angle between two points and a common vertex
 template <typename P>
 double angle_between(const P& p1, const P& p2, const P& p3) {
-    double a = std::sqrt(CGAL::squared_distance(p2, p3));
-    double b = std::sqrt(CGAL::squared_distance(p1, p3));
-    double c = std::sqrt(CGAL::squared_distance(p1, p2));
+    double a = std::sqrt(CGAL::to_double(CGAL::squared_distance(p2, p3)));
+    double b = std::sqrt(CGAL::to_double(CGAL::squared_distance(p1, p3)));
+    double c = std::sqrt(CGAL::to_double(CGAL::squared_distance(p1, p2)));
 
     // Cosine rule to calculate the angle
     double cos_angle = (b * b + c * c - a * a) / (2 * b * c);
