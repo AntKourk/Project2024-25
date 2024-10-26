@@ -7,7 +7,8 @@
 #include <vector>
 #include <iostream>
 #include <cmath> // For angle calculations
-#include <CGAL/Segment_2.h>
+#include <CGAL/Polygon_2.h>
+#include <CGAL/Polygon_2_algorithms.h>
 
 // Define CGAL types
 typedef CGAL::Exact_predicates_exact_constructions_kernel K;
@@ -16,6 +17,16 @@ typedef DT::Point Point;
 typedef DT::Edge Edge;
 typedef DT::Face_handle FaceHandle;
 typedef K::FT FT;
+typedef CGAL::Polygon_2<K> Polygon;
+
+
+// Συνάρτηση για έλεγχο αν ένα σημείο είναι εντός του κυρτού περιβλήματος
+bool is_within_convex_hull(const Point& p, const std::vector<Point>& convex_hull) {
+    Polygon hull_polygon(convex_hull.begin(), convex_hull.end());
+    return CGAL::bounded_side_2(hull_polygon.vertices_begin(), hull_polygon.vertices_end(), p, K()) 
+           != CGAL::ON_UNBOUNDED_SIDE;
+}
+
 
 // Function to calculate the angle between two points and a common vertex
 template <typename P>
@@ -62,26 +73,6 @@ Point circumcenter(const Point& p1, const Point& p2, const Point& p3) {
     return CGAL::circumcenter(p1, p2, p3);
 }
 
-// // Check if point p is inside the constraints defined by the pairs of indices
-// bool is_inside_constraints(const Point& p, const std::vector<std::vector<int>>& constraints, const std::vector<Point>& points) {
-//     for (const auto& constraint : constraints) {
-//         if (constraint.size() == 2) { // Ensure constraint is a pair
-//             int idx1 = constraint[0];
-//             int idx2 = constraint[1];
-
-//             // Ensure the indices are valid
-//             if (idx1 < points.size() && idx2 < points.size()) {
-//                 // Create a segment from the two points
-//                 CGAL::Segment_2<Traits> segment(points[idx1], points[idx2]);
-//                 // Check if the point is on the segment
-//                 if (segment.has_on(p)) {
-//                     return true; // Point is on this constraint segment
-//                 }
-//             }
-//         }
-//     }
-//     return false; // Point is not on any constraint segment
-// }
 
 
 // Function to print the edges of the triangulation
@@ -106,7 +97,7 @@ void print_points(const DT& dt) {
 }
 
 template <typename DT>
-std::vector<Point> add_steiner_in_circumcenter(DT& dt, std::vector<Point> steiner_points, const std::vector<std::vector<int>>& constraints) {
+std::vector<Point> add_steiner_in_circumcenter(DT& dt, std::vector<Point> steiner_points,  const std::vector<Point>& convex_hull) {
     bool added_steiner = false;
 
     for (auto face = dt.finite_faces_begin(); face != dt.finite_faces_end(); ++face) {
@@ -117,13 +108,16 @@ std::vector<Point> add_steiner_in_circumcenter(DT& dt, std::vector<Point> steine
             Point p3 = face->vertex(2)->point();
             Point circumcenter_point = circumcenter(p1, p2, p3);
 
-            // Check if circumcenter is within constraints
-            //if (is_inside_constraints(circumcenter_point, steiner_points, constraints)) {
+            // Έλεγχος αν το Steiner σημείο βρίσκεται εντός του κυρτού περιβλήματος
+            if (is_within_convex_hull(circumcenter_point, convex_hull)) {
                 steiner_points.push_back(circumcenter_point);
                 std::cout << "Adding Steiner point at (" << circumcenter_point.x() << ", " 
                           << circumcenter_point.y() << ")\n";
                 added_steiner = true;
-            //}
+            } else {
+                std::cout << "Steiner point (" << circumcenter_point.x() << ", " 
+                          << circumcenter_point.y() << ") is outside the convex hull, discarding.\n";
+            }
         }
     }
 
@@ -145,6 +139,10 @@ std::vector<Point> add_steiner_in_circumcenter(DT& dt, std::vector<Point> steine
 }
 
 int circumcenter_steiner_points(std::vector<Point> points, const std::vector<std::vector<int>>& constraints) {
+
+    std::vector<Point> convex_hull;
+    CGAL::convex_hull_2(points.begin(), points.end(), std::back_inserter(convex_hull));
+
     // Initialize Delaunay triangulation
     DT dt;
 
@@ -187,7 +185,7 @@ int circumcenter_steiner_points(std::vector<Point> points, const std::vector<std
 
     while (obtuse_exists && iterations <= 15) {
         
-        add_steiner_in_circumcenter(dt, steiner_points, constraints);
+        add_steiner_in_circumcenter(dt, steiner_points, convex_hull);
         
         obtuse_exists = false;
         obtuse_count = 0;  
