@@ -65,8 +65,8 @@ std::pair<int, double> obtuse_vertex_index_and_angle(const FaceHandle& face) {
 Point compute_centroid(const std::vector<Point>& points) {
     int sum_x = 0, sum_y = 0;
     for (const auto& point : points) {
-        sum_x += point.x();
-        sum_y += point.y();
+        sum_x += CGAL::to_double(point.x());
+        sum_y += CGAL::to_double(point.y());
     }
     return Point(sum_x / points.size(), sum_y / points.size());
 }

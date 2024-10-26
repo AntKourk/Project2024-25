@@ -1,7 +1,7 @@
 {
     "instance_uid":"cgshop2025_examples_simple-polygon-exterior_10_34daa0f6",
     "num_points":4,
-    "points_x":[0,1,4,5],
+    "points_x":[0,1,4,7],
     "points_y":[0,2,2,0],
     "region_boundary":[0,1,2,3],
     "num_constraints":6,
