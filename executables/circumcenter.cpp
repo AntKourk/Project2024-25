@@ -9,6 +9,7 @@
 #include <cmath> // For angle calculations
 #include <CGAL/Polygon_2.h>
 #include <CGAL/Polygon_2_algorithms.h>
+#include "output.h"
 
 // Define CGAL types
 typedef CGAL::Exact_predicates_exact_constructions_kernel K;
@@ -77,14 +78,25 @@ Point circumcenter(const Point& p1, const Point& p2, const Point& p3) {
 
 // Function to print the edges of the triangulation
 template <typename DT>
-void print_edges(const DT& dt) {
+std::vector<std::pair<typename DT::Point, typename DT::Point>> print_edges(const DT& dt) {
+    // Define a vector to hold pairs of points representing edges
+    std::vector<std::pair<typename DT::Point, typename DT::Point>> edges;
+
     std::cout << "Edges:\n";
     for (auto edge = dt.finite_edges_begin(); edge != dt.finite_edges_end(); ++edge) {
         auto v1 = edge->first->vertex((edge->second + 1) % 3)->point();
         auto v2 = edge->first->vertex((edge->second + 2) % 3)->point();
+        
+        // Print the edge
         std::cout << "(" << v1.x() << ", " << v1.y() << ") - (" 
                   << v2.x() << ", " << v2.y() << ")\n";
+
+        // Add the edge to the vector
+        edges.emplace_back(v1, v2);
     }
+
+    // Return the vector of edges
+    return edges;
 }
 
 // Function to print the points of the triangulation
@@ -130,7 +142,7 @@ std::vector<Point> add_steiner_in_circumcenter(DT& dt, std::vector<Point> steine
     if (added_steiner) {
         std::cout << "After adding Steiner points:\n";
         print_points(dt);
-        print_edges(dt);
+        // print_edges(dt);
         return steiner_points;
     } else {
         std::cout << "No obtuse triangles found.\n";
@@ -138,13 +150,15 @@ std::vector<Point> add_steiner_in_circumcenter(DT& dt, std::vector<Point> steine
     }
 }
 
-int circumcenter_steiner_points(std::vector<Point> points, const std::vector<std::vector<int>>& constraints, DT dt) {
+int circumcenter_steiner_points(std::vector<Point> points, DT dt) {
 
     std::vector<Point> convex_hull;
     CGAL::convex_hull_2(points.begin(), points.end(), std::back_inserter(convex_hull));
 
     // Initialize Delaunay triangulation
     // DT dt;
+
+    std::vector<std::pair<typename DT::Point, typename DT::Point>> edges;
 
     bool obtuse_exists = true;
     int obtuse_count = 0;
@@ -169,7 +183,7 @@ int circumcenter_steiner_points(std::vector<Point> points, const std::vector<std
     // Print points and edges before adding Steiner points
     std::cout << "Before adding Steiner points:\n";
     print_points(dt);
-    print_edges(dt);
+    // print_edges(dt);
 
     CGAL::draw(dt);
 
@@ -185,7 +199,7 @@ int circumcenter_steiner_points(std::vector<Point> points, const std::vector<std
 
     while (obtuse_exists && iterations <= 15) {
         
-        add_steiner_in_circumcenter(dt, steiner_points, convex_hull);
+        steiner_points = add_steiner_in_circumcenter(dt, steiner_points, convex_hull);
         
         obtuse_exists = false;
         obtuse_count = 0;  
@@ -245,9 +259,10 @@ int circumcenter_steiner_points(std::vector<Point> points, const std::vector<std
 
     // Print edges after adding Steiner points
     std::cout << "\nAfter adding Steiner points:\n";
-    print_edges(dt);
+    edges = print_edges(dt);
     print_points(dt);
 
+    output(edges, steiner_points);
     CGAL::draw(dt);
 
     return 0;

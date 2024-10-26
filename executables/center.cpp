@@ -5,6 +5,7 @@
 #include <CGAL/draw_triangulation_2.h>
 #include <cmath> // For angle calculations
 #include "center.h"
+#include "output.h"
 
 // Define CGAL types
 typedef CGAL::Exact_predicates_exact_constructions_kernel K;
@@ -61,14 +62,25 @@ std::pair<int, double> obtuse_vertex_index_and_angle(const FaceHandle& face) {
 
 // Function to print the edges of the triangulation
 template <typename DT>
-void print_edges(const DT& dt) {
+std::vector<std::pair<typename DT::Point, typename DT::Point>> print_edges(const DT& dt) {
+    // Define a vector to hold pairs of points representing edges
+    std::vector<std::pair<typename DT::Point, typename DT::Point>> edges;
+
     std::cout << "Edges:\n";
     for (auto edge = dt.finite_edges_begin(); edge != dt.finite_edges_end(); ++edge) {
         auto v1 = edge->first->vertex((edge->second + 1) % 3)->point();
         auto v2 = edge->first->vertex((edge->second + 2) % 3)->point();
+        
+        // Print the edge
         std::cout << "(" << v1.x() << ", " << v1.y() << ") - (" 
                   << v2.x() << ", " << v2.y() << ")\n";
+
+        // Add the edge to the vector
+        edges.emplace_back(v1, v2);
     }
+
+    // Return the vector of edges
+    return edges;
 }
 
 // Function to print the points of the triangulation
@@ -82,9 +94,9 @@ void print_points(const DT& dt) {
 
 // Function to add Steiner points instead of flipping edges when a triangle is obtuse
 template <typename DT>
-void add_steiner_if_obtuse_center(DT& dt) {
+std::vector<Point> add_steiner_if_obtuse_center(DT& dt, std::vector<Point> steiner_points) {
     bool added_steiner = false;
-    std::vector<Point> steiner_points;
+    // std::vector<Point> steiner_points;
 
     for (auto face = dt.finite_faces_begin(); face != dt.finite_faces_end(); ++face) {
         int obtuse_vertex = obtuse_vertex_index(face);
@@ -109,15 +121,14 @@ void add_steiner_if_obtuse_center(DT& dt) {
     }
 
     if (added_steiner) {
-        CGAL::draw(dt);
-
-        //add_steiner_if_obtuse_center(dt);
-
         std::cout << "After adding Steiner points:\n";
         print_points(dt);
-        print_edges(dt);
+        // print_edges(dt);
+        return steiner_points;
+        // return {};
     } else {
         std::cout << "No obtuse triangles found.\n";
+        return {};
     }
 }
 
@@ -125,9 +136,13 @@ int center_steiner_points(std::vector<Point> points, DT dt) {
     // Initialize Delaunay triangulation
     // DT dt;
 
+    std::vector<Point> steiner_points;
+    
     bool obtuse_exists = true;
     int obtuse_count = 0;
     int iterations = 0;
+
+    std::vector<std::pair<typename DT::Point, typename DT::Point>> edges;
 
     // Insert points into the triangulation
     for (const Point& p : points) {
@@ -137,7 +152,7 @@ int center_steiner_points(std::vector<Point> points, DT dt) {
     // Print points and edges before adding Steiner points
     std::cout << "Before adding Steiner points:\n";
     print_points(dt);
-    print_edges(dt);
+    // print_edges(dt);
 
     
     CGAL::draw(dt);
@@ -154,7 +169,7 @@ int center_steiner_points(std::vector<Point> points, DT dt) {
 
     while (obtuse_exists && iterations <= 15) {
         
-        add_steiner_if_obtuse_center(dt);
+        steiner_points = add_steiner_if_obtuse_center(dt, steiner_points);
         
         obtuse_exists = false;
         obtuse_count = 0;  
@@ -193,8 +208,9 @@ int center_steiner_points(std::vector<Point> points, DT dt) {
 
     // Print edges after adding Steiner points
     std::cout << "After adding Steiner points:\n";
-    print_edges(dt);
+    edges = print_edges(dt);
 
+    output(edges, steiner_points);
     CGAL::draw(dt);
 
     return 0;
