@@ -11,6 +11,7 @@
 #include "probolh.h"
 #include "center.h"
 #include "circumcenter.h"
+#include "inside_convex_polygon_centroid.h"
 
 // Define CGAL types
 typedef CGAL::Exact_predicates_exact_constructions_kernel K;
@@ -130,10 +131,10 @@ int main(int argc, char* argv[]) {
         probolh_steiner_points(points, cdt);
     }
     else if (strcmp(argv[1], "circumcenter") == 0) {
-        circumcenter_steiner_points(points, constraints, cdt);
+        circumcenter_steiner_points(points, cdt);
     }
-    else if (strcmp(argv[1],"inside_convex_hull") == 0) {
-        //probolh_steiner_points(points);
+    else if (strcmp(argv[1],"inside_convex_polygon") == 0) {
+        inside_convex_polygon_centroid_steiner_points(points, cdt);
     }
     else if (strcmp(argv[1],"centroid") == 0) {
         centroid_steiner_points(points, cdt);
