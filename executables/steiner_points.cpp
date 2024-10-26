@@ -123,8 +123,8 @@ std::vector<Point> add_steiner_in_centroid(DT& dt, std::vector<Point> steiner_po
     if (added_steiner) {
         std::cout << "After adding Steiner points:\n";
         print_points(dt);
-        print_edges(dt);
-        // return steiner_points;
+        // print_edges(dt);
+        return steiner_points;
         return {};
     } else {
         std::cout << "No obtuse triangles found.\n";
@@ -176,7 +176,7 @@ int centroid_steiner_points(std::vector<Point> points, DT dt) {
 
     while (obtuse_exists && iterations <= 15) {
         
-        add_steiner_in_centroid(dt, steiner_points);
+        steiner_points = add_steiner_in_centroid(dt, steiner_points);
         
         obtuse_exists = false;
         obtuse_count = 0;  
@@ -229,7 +229,7 @@ int centroid_steiner_points(std::vector<Point> points, DT dt) {
     edges = print_edges(dt);
     // print_points(dt);
 
-    output(edges);
+    output(edges, steiner_points);
     CGAL::draw(dt);
 
     return 0;
