@@ -100,11 +100,10 @@ Point project_point_onto_line(const Point& P, const Point& A, const Point& B) {
     K::Vector_2 AB = B - A;  // Vector from A to B
     K::Vector_2 AP = P - A;  // Vector from A to P
 
-    // Project AP onto AB to find the scalar projection
-    double t = CGAL::to_double(AP * AB) / CGAL::to_double(AB * AB); 
+    // Project AP onto AB to find the scalar projection using exact arithmetic
+    K::FT t = (AP * AB) / (AB * AB); 
     
     // The projection point is A + t * (B - A)
-    //Point projection = A + AP;
     Point projection = A + t * AB;
     return projection;
 }

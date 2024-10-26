@@ -49,9 +49,9 @@ int obtuse_vertex_index(const FaceHandle& face) {
     double angle2 = angle_between(face->vertex(1)->point(), face->vertex(2)->point(), face->vertex(0)->point());
     double angle3 = angle_between(face->vertex(2)->point(), face->vertex(0)->point(), face->vertex(1)->point());
     
-    if (angle1 > 90.0) return 0;
-    if (angle2 > 90.0) return 1;
-    if (angle3 > 90.0) return 2;
+    if (angle1 > 90.0 + 0.01) return 0;
+    if (angle2 > 90.0 + 0.01) return 1;
+    if (angle3 > 90.0 + 0.01) return 2;
     return -1; // No obtuse angle
 }
 
@@ -197,7 +197,7 @@ int circumcenter_steiner_points(std::vector<Point> points, DT dt) {
     
     std::cout << "Obtuse triangles before adding Steiner points in iteration 0" << ": " << obtuse_count << "\n";
 
-    while (obtuse_exists && iterations <= 15) {
+    while (obtuse_exists && iterations <= 5) {
         
         steiner_points = add_steiner_in_circumcenter(dt, steiner_points, convex_hull);
         
