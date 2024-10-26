@@ -138,13 +138,13 @@ std::vector<Point> add_steiner_in_circumcenter(DT& dt, std::vector<Point> steine
     }
 }
 
-int circumcenter_steiner_points(std::vector<Point> points, const std::vector<std::vector<int>>& constraints) {
+int circumcenter_steiner_points(std::vector<Point> points, const std::vector<std::vector<int>>& constraints, DT dt) {
 
     std::vector<Point> convex_hull;
     CGAL::convex_hull_2(points.begin(), points.end(), std::back_inserter(convex_hull));
 
     // Initialize Delaunay triangulation
-    DT dt;
+    // DT dt;
 
     bool obtuse_exists = true;
     int obtuse_count = 0;

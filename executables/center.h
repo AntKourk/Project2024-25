@@ -10,4 +10,4 @@ typedef CGAL::Constrained_Delaunay_triangulation_2<K> DT;
 typedef DT::Point Point;
 
 
-int center_steiner_points(std::vector<Point> points);
+int center_steiner_points(std::vector<Point> points, DT dt);

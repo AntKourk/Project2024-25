@@ -13,4 +13,4 @@ typedef DT::Point Point;
 typedef CGAL::Polygon_2<K> Polygon;
 
 
-int circumcenter_steiner_points(std::vector<Point> points, const std::vector<std::vector<int>>& constraints);
+int circumcenter_steiner_points(std::vector<Point> points, const std::vector<std::vector<int>>& constraints, DT dt);

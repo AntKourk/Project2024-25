@@ -124,10 +124,10 @@ int main() {
 
 
     //test_steiner_points(points);
-    // centroid_steiner_points(points);
-    // probolh_steiner_points(points);
-    // center_steiner_points(points);
-     circumcenter_steiner_points(points, constraints);
+    // centroid_steiner_points(points, cdt);
+    // probolh_steiner_points(points, cdt);
+    // center_steiner_points(points, cdt);
+     circumcenter_steiner_points(points, constraints, cdt);
 
     return 0;
 }
