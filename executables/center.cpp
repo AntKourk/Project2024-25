@@ -121,9 +121,9 @@ void add_steiner_if_obtuse_center(DT& dt) {
     }
 }
 
-int center_steiner_points(std::vector<Point> points) {
+int center_steiner_points(std::vector<Point> points, DT dt) {
     // Initialize Delaunay triangulation
-    DT dt;
+    // DT dt;
 
     bool obtuse_exists = true;
     int obtuse_count = 0;

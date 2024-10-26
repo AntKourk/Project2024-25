@@ -137,9 +137,9 @@ void add_steiner_if_obtuse(DT& dt) {
     }
 }
 
-int probolh_steiner_points(std::vector<Point> points) {
+int probolh_steiner_points(std::vector<Point> points, DT dt) {
     // Initialize Delaunay triangulation
-    DT dt;
+    // DT dt;
 
     bool obtuse_exists = true;
     int obtuse_count = 0;

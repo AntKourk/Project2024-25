@@ -79,6 +79,19 @@ void print_points(const DT& dt) {
     }
 }
 
+template <typename FaceHandle>
+std::pair<int, double> obtuse_vertex_index_and_angle(const FaceHandle& face) {
+    double angle1 = angle_between(face->vertex(0)->point(), face->vertex(1)->point(), face->vertex(2)->point());
+    double angle2 = angle_between(face->vertex(1)->point(), face->vertex(2)->point(), face->vertex(0)->point());
+    double angle3 = angle_between(face->vertex(2)->point(), face->vertex(0)->point(), face->vertex(1)->point());
+    
+    if (angle1 > 90.0 + 0.01) return std::make_pair(0, angle1);
+    if (angle2 > 90.0 + 0.01) return std::make_pair(1, angle2);
+    if (angle3 > 90.0 + 0.01) return std::make_pair(2, angle3);
+    
+    return std::make_pair(-1, 0.0);  // No obtuse angle
+}
+
 // Function to add Steiner points at the circumcenters of obtuse triangles inside a convex polygon
 template <typename DT>
 std::vector<Point> add_steiner_in_centroid(DT& dt, std::vector<Point> steiner_points) {
@@ -119,10 +132,14 @@ std::vector<Point> add_steiner_in_centroid(DT& dt, std::vector<Point> steiner_po
     }
 }
 
-int centroid_steiner_points(std::vector<Point> points) {
+int centroid_steiner_points(std::vector<Point> points, DT dt) {
     // Initialize Delaunay triangulation
-    DT dt;
+    // DT dt;
     std::vector<Point> steiner_points;
+    
+    bool obtuse_exists = true;
+    int obtuse_count = 0;
+    int iterations = 0;
 
     std::vector<std::pair<typename DT::Point, typename DT::Point>> edges;
 
@@ -147,8 +164,54 @@ int centroid_steiner_points(std::vector<Point> points) {
 
     CGAL::draw(dt);
 
-    // Add Steiner points in obtuse triangles within the convex polygon
-    steiner_points = add_steiner_in_centroid(dt, steiner_points);
+    obtuse_count = 0;  
+    for (auto face = dt.finite_faces_begin(); face != dt.finite_faces_end(); ++face) {
+        int obtuse_vertex = obtuse_vertex_index(face);
+        if (obtuse_vertex != -1) {
+            obtuse_count++;
+        }
+    }
+    
+    std::cout << "Obtuse triangles before adding Steiner points in iteration 0" << ": " << obtuse_count << "\n";
+
+    while (obtuse_exists && iterations <= 15) {
+        
+        add_steiner_in_centroid(dt, steiner_points);
+        
+        obtuse_exists = false;
+        obtuse_count = 0;  
+
+        for (auto face = dt.finite_faces_begin(); face != dt.finite_faces_end(); ++face) {
+            auto obtuse = obtuse_vertex_index_and_angle(face);
+            auto obtuse_vertex = std::get<0>(obtuse);
+            auto obtuse_angle = std::get<1>(obtuse);
+            //int obtuse_vertex = obtuse_vertex_index(face);
+            if (obtuse_vertex != -1) {
+                std::cout << obtuse_vertex << "\n";
+                obtuse_exists = true;
+                obtuse_count++;
+
+                // Get coordinates of the obtuse vertex and print detailed information
+                Point obtuse_point = face->vertex(obtuse_vertex)->point();
+                std::cout << "Obtuse triangle found at vertex (" 
+                        << obtuse_point.x() << ", " << obtuse_point.y() << ")\n";
+                std::cout << "Obtuse angle: " << obtuse_angle << " degrees\n";
+
+                // Print the coordinates of the other two vertices
+                Point p1 = face->vertex((obtuse_vertex + 1) % 3)->point();
+                Point p2 = face->vertex((obtuse_vertex + 2) % 3)->point();
+                std::cout << "Other vertices: (" << p1.x() << ", " << p1.y() << ") and ("
+                        << p2.x() << ", " << p2.y() << ")\n\n";
+            }
+        }
+
+        std::cout << "Obtuse triangles after adding Steiner points in iteration " << iterations + 1 
+                << ": " << obtuse_count << "\n";
+
+        CGAL::draw(dt);
+        iterations++;
+    }
+
 
     //OUTPUT STEINER POINTS
     std::cout << "\nSteiner Points X:\n";
