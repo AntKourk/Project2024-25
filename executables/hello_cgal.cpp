@@ -20,7 +20,7 @@ typedef CDT::Point Point;
 
 using namespace std;
 
-int main() {
+int main(int argc, char* argv[]) {
     // Initialize the Constrained Delaunay Triangulation (CDT)
     CDT cdt;
 
@@ -123,11 +123,21 @@ int main() {
     // flip_edges();
 
 
-    //test_steiner_points(points);
-    // centroid_steiner_points(points, cdt);
-    // probolh_steiner_points(points, cdt);
-    // center_steiner_points(points, cdt);
-     circumcenter_steiner_points(points, constraints, cdt);
+    if (strcmp(argv[1], "center") == 0) {
+        center_steiner_points(points, cdt);
+    }
+    else if (strcmp(argv[1], "projection") == 0) {
+        probolh_steiner_points(points, cdt);
+    }
+    else if (strcmp(argv[1], "circumcenter") == 0) {
+        circumcenter_steiner_points(points, constraints, cdt);
+    }
+    else if (strcmp(argv[1],"inside_convex_hull") == 0) {
+        //probolh_steiner_points(points);
+    }
+    else if (strcmp(argv[1],"centroid") == 0) {
+        centroid_steiner_points(points, cdt);
+    }
 
     return 0;
 }
