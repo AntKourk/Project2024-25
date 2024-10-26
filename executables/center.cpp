@@ -106,7 +106,9 @@ std::vector<Point> add_steiner_if_obtuse_center(DT& dt, std::vector<Point> stein
             Point p2 = face->vertex((obtuse_vertex + 2) % 3)->point();
 
             // Calculate the midpoint of the edge opposite the obtuse angle
-            Point midpoint((p1.x() + p2.x()) / 2, (p1.y() + p2.y()) / 2);
+            K::FT mid_x = (p1.x() + p2.x()) / 2;
+            K::FT mid_y = (p1.y() + p2.y()) / 2;
+            Point midpoint(mid_x, mid_y);
 
             // Add the Steiner point to the list
             steiner_points.push_back(midpoint);
@@ -167,7 +169,7 @@ int center_steiner_points(std::vector<Point> points, DT dt) {
     
     std::cout << "Obtuse triangles before adding Steiner points in iteration 0" << ": " << obtuse_count << "\n";
 
-    while (obtuse_exists && iterations <= 15) {
+    while (obtuse_exists && iterations <= 5) {
         
         steiner_points = add_steiner_if_obtuse_center(dt, steiner_points);
         

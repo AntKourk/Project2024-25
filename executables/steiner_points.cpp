@@ -35,16 +35,16 @@ int obtuse_vertex_index(const FaceHandle& face) {
     double angle2 = angle_between(face->vertex(1)->point(), face->vertex(2)->point(), face->vertex(0)->point());
     double angle3 = angle_between(face->vertex(2)->point(), face->vertex(0)->point(), face->vertex(1)->point());
     
-    if (angle1 > 90.0) return 0;
-    if (angle2 > 90.0) return 1;
-    if (angle3 > 90.0) return 2;
+    if (angle1 > 90.0 + 0.01) return 0;
+    if (angle2 > 90.0 + 0.01) return 1;
+    if (angle3 > 90.0 + 0.01) return 2;
     return -1; // No obtuse angle
 }
 
 Point calculate_centroid(const Point& p1, const Point& p2, const Point& p3) {
-    FT cx = (p1.x() + p2.x() + p3.x()) / 3;
-    FT cy = (p1.y() + p2.y() + p3.y()) / 3;
-    return Point(cx, cy);
+    K::FT cx = (p1.x() + p2.x() + p3.x()) / 3;  // Calculate x-coordinate of the centroid
+    K::FT cy = (p1.y() + p2.y() + p3.y()) / 3;  // Calculate y-coordinate of the centroid
+    return Point(cx, cy);  // Return the centroid as a Point
 }
 
 // Function to print the edges of the triangulation
@@ -174,7 +174,7 @@ int centroid_steiner_points(std::vector<Point> points, DT dt) {
     
     std::cout << "Obtuse triangles before adding Steiner points in iteration 0" << ": " << obtuse_count << "\n";
 
-    while (obtuse_exists && iterations <= 15) {
+    while (obtuse_exists && iterations <= 5) {
         
         steiner_points = add_steiner_in_centroid(dt, steiner_points);
         
