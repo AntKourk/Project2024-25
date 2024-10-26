@@ -4,11 +4,13 @@
 #include <CGAL/convex_hull_2.h>
 #include <vector>
 #include <iostream>
+#include <CGAL/Polygon_2.h>
+#include <CGAL/Polygon_2_algorithms.h>
 
 typedef CGAL::Exact_predicates_exact_constructions_kernel K;
 typedef CGAL::Constrained_Delaunay_triangulation_2<K> DT; 
 typedef DT::Point Point;
-typedef K::Segment_2 Segment;
+typedef CGAL::Polygon_2<K> Polygon;
 
 
 int circumcenter_steiner_points(std::vector<Point> points, const std::vector<std::vector<int>>& constraints);

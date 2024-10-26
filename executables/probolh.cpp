@@ -118,7 +118,6 @@ void add_steiner_if_obtuse(DT& dt) {
             steiner_points.push_back(projection);
             std::cout << "Adding Steiner point at (" << projection.x() << ", " << projection.y() << ")\n";
             added_steiner = true;
-            break;
         }
     }
 
@@ -216,7 +215,7 @@ int probolh_steiner_points(std::vector<Point> points) {
                 << ": " << obtuse_count << "\n";
 
         CGAL::draw(dt);
-
+        iterations++;
     }
 
     
