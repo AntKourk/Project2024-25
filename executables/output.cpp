@@ -7,17 +7,44 @@
 #include "executable.h"
 #include <string>
 #include <sstream>  // For std::ostringstream
+#include <boost/algorithm/string/replace.hpp>
+#include <fstream>
 
 // Define CGAL types
 typedef CGAL::Exact_predicates_exact_constructions_kernel K;
 typedef K::Point_2 Point;
 
+void write_json_no_escaping(const boost::property_tree::ptree& pt, const std::string& filename) {
+    std::ostringstream oss;
+    write_json(oss, pt, true);  // The 'true' parameter enables pretty-printing
+
+    std::string json_str = oss.str();
+    
+    // Replace the escaped `\/` with `/`
+    boost::replace_all(json_str, "\\/", "/");
+
+    // Write the modified JSON string to the file
+    std::ofstream outfile(filename);
+    if (outfile) {
+        outfile << json_str;
+        outfile.close();
+        std::cout << "Output written to " << filename << std::endl;
+    } else {
+        std::cerr << "Error opening file: " << filename << std::endl;
+    }
+}
+
 // Function to convert K::FT to a string representation
 std::string rational_to_string(const K::FT& coord) {
     const auto exact_coord = CGAL::exact(coord);
-    std::ostringstream oss;
-    oss << exact_coord.get_num() << "/" << exact_coord.get_den();
-    return oss.str();
+    // If the denominator is 1, just return the numerator as an integer string
+    if (exact_coord.get_den() == 1) {
+        return exact_coord.get_num().get_str();  // Use .get_str() for mpz_class to convert to string
+    } else {
+        std::ostringstream oss;
+        oss << exact_coord.get_num().get_str() << "/" << exact_coord.get_den().get_str();
+        return oss.str();
+    }
 }
 
 void print_rational(const K::FT& coord) {
@@ -93,7 +120,7 @@ void output(const std::vector<std::pair<Point, Point>>& edges, std::vector<Point
 
     // Write the output JSON to a file
     try {
-        write_json("../output.json", output_pt);
+        write_json_no_escaping(output_pt, "../output.json");
         std::cout << "Output written to output.json" << std::endl;
     } catch (const boost::property_tree::json_parser_error &e) {
         std::cerr << "Error writing JSON: " << e.what() << std::endl;
