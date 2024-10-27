@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1...3.23)
 
-project(hello_cgal)
+project(main)
 
 # Set the build type
 set(CMAKE_BUILD_TYPE "Release")
@@ -33,10 +33,10 @@ if (NOT Boost_FOUND)
 endif()
 
 # Create the executable with both source files
-add_executable(hello_cgal center.cpp probolh.cpp steiner_points.cpp circumcenter.cpp output.cpp flipEdges.cpp executable.cpp hello_cgal.cpp inside_convex_polygon_centroid.cpp)
+add_executable(main center.cpp projection.cpp centroid.cpp circumcenter.cpp output.cpp flipEdges.cpp inputs.cpp main.cpp inside_convex_polygon_centroid.cpp)
 
 # Link the executable to CGAL, Boost, Qt5, OpenGL, and GLEW libraries
-target_link_libraries(hello_cgal 
+target_link_libraries(main 
     PRIVATE 
         CGAL::CGAL 
         Boost::system 
@@ -49,5 +49,5 @@ target_link_libraries(hello_cgal
 # If CGAL Qt5 is found, define CGAL_USE_BASIC_VIEWER and link to CGAL_Qt5
 if (CGAL_Qt5_FOUND)
     add_definitions(-DCGAL_USE_BASIC_VIEWER)
-    target_link_libraries(hello_cgal PRIVATE CGAL::CGAL_Qt5)
+    target_link_libraries(main PRIVATE CGAL::CGAL_Qt5)
 endif()

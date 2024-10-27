@@ -1,10 +1,8 @@
-// //probolh ths gwnias sthn apenanti pleura (σχηματιζει μαζι της ορθη γωνια)
-
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include <CGAL/Delaunay_triangulation_2.h>
 #include <CGAL/draw_triangulation_2.h>
 #include <cmath> // For angle calculations
-#include "probolh.h"
+#include "projection.h"
 #include "output.h"
 
 
@@ -149,7 +147,7 @@ std::vector<Point>  add_steiner_if_obtuse(DT& dt, std::vector<Point> steiner_poi
     }
 }
 
-int probolh_steiner_points(std::vector<Point> points, DT dt) {
+int projection(std::vector<Point> points, DT dt) {
     // Initialize Delaunay triangulation
     // DT dt;
 
@@ -184,7 +182,7 @@ int probolh_steiner_points(std::vector<Point> points, DT dt) {
     
     std::cout << "Obtuse triangles before adding Steiner points in iteration 0" << ": " << obtuse_count << "\n";
 
-    while (obtuse_exists && iterations <= 15) {
+    while (obtuse_exists && iterations <= 5) {
         
         steiner_points = add_steiner_if_obtuse(dt, steiner_points);
         

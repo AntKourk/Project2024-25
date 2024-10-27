@@ -4,11 +4,11 @@
 #include <vector>
 #include <utility>
 #include <iostream>
-#include "executable.h"
+#include "inputs.h"
 #include "flipEdges.h"
 #include "output.h"
-#include "steiner_points.h"
-#include "probolh.h"
+#include "centroid.h"
+#include "projection.h"
 #include "center.h"
 #include "circumcenter.h"
 #include "inside_convex_polygon_centroid.h"
@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     CDT cdt;
 
     // Get data from the executable function
-    InputData input = executable();
+    InputData input = inputs();
 
     // Get points
     vector<Point> points = input.points;
@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
             center_steiner_points(points, cdt);
             break;
         case 2:
-            probolh_steiner_points(points, cdt);
+            projection(points, cdt);
             break;
         case 3:
             circumcenter_steiner_points(points, cdt);
