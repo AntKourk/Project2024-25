@@ -13,5 +13,5 @@ struct InputData {
     std::vector<std::vector<int>> additional_constraints;
 };
 
-// Function declaration for executable
-InputData inputs();  // Change the return type to std::vector<Point>
+
+InputData inputs(); 

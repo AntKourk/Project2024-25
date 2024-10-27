@@ -9,10 +9,10 @@ typedef CGAL::Exact_predicates_exact_constructions_kernel K;
 typedef K::Point_2 Point;
 
 InputData inputs() {
-    // Δημιουργία του property tree
+    // Creation of property tree
     boost::property_tree::ptree pt;
 
-    // Ανάγνωση από JSON αρχείο
+    // Read from JSON file
     try {
         read_json("../input.json", pt);
     } catch (const boost::property_tree::json_parser_error &e) {
@@ -20,11 +20,11 @@ InputData inputs() {
         return {};  // Return empty struct
     }
 
-    // Ανάκτηση δεδομένων από το property tree
+    // Get data from property tree
     std::string instance_uid = pt.get<std::string>("instance_uid");
     int num_points = pt.get<int>("num_points");
 
-    // Ανάκτηση σημείων
+    // Get points
     std::vector<int> points_x;
     for (const auto& point : pt.get_child("points_x")) {
         points_x.push_back(point.second.get_value<int>());

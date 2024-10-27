@@ -54,17 +54,17 @@ void print_rational(const K::FT& coord) {
 }
 
 void output(const std::vector<std::pair<Point, Point>>& edges, std::vector<Point> steiner_points_given) {
-    // Δημιουργία του property tree
+    // Creation of property tree
     boost::property_tree::ptree pt;
 
-    // Ανάγνωση από JSON αρχείο
+    // Read from JSON file
     try {
         read_json("../input.json", pt);
     } catch (const boost::property_tree::json_parser_error &e) {
         std::cerr << "Error reading JSON: " << e.what() << std::endl;
     }
 
-    // Ανάκτηση δεδομένων από το property tree
+    // Get data from property tree
     std::string instance_uid = pt.get<std::string>("instance_uid");
 
     std::vector<Point> steiner_points = steiner_points_given;

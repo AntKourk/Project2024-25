@@ -23,7 +23,7 @@ double angle_between(const P& p1, const P& p2, const P& p3) {
     return std::acos(cos_angle) * 180.0 / M_PI;
 }
 
-// Function to check if a triangle is obtuse (has an angle > 90 degrees)
+// Function to check if a triangle is obtuse
 template <typename FaceHandle>
 int obtuse_vertex_index(const FaceHandle& face) {
     double angle1 = angle_between(face->vertex(0)->point(), face->vertex(1)->point(), face->vertex(2)->point());
@@ -82,7 +82,6 @@ Point project_point_onto_line(const Point& P, const Point& A, const Point& B) {
 template <typename DT>
 std::vector<Point>  add_steiner_if_obtuse(DT& dt, std::vector<Point> steiner_points) {
     bool added_steiner = false;
-    // std::vector<Point> steiner_points;
 
     for (auto face = dt.finite_faces_begin(); face != dt.finite_faces_end(); ++face) {
         int obtuse_vertex = obtuse_vertex_index(face);
@@ -101,7 +100,7 @@ std::vector<Point>  add_steiner_if_obtuse(DT& dt, std::vector<Point> steiner_poi
         }
     }
 
-    // Insert Steiner points into the triangulation and re-triangulate
+    // Insert Steiner points into the triangulation
     for (const Point& p : steiner_points) {
         dt.insert(p);
     }
@@ -139,7 +138,6 @@ int projection(std::vector<Point> points, DT dt) {
             auto obtuse = obtuse_vertex_index_and_angle(face);
             auto obtuse_vertex = std::get<0>(obtuse);
             auto obtuse_angle = std::get<1>(obtuse);
-            //int obtuse_vertex = obtuse_vertex_index(face);
             if (obtuse_vertex != -1) {
                 obtuse_exists = true;
             }
