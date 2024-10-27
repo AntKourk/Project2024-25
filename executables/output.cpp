@@ -8,7 +8,7 @@
 #include "output.h"
 #include "inputs.h"
 #include <string>
-#include <sstream>  // For std::ostringstream
+#include <sstream> 
 #include <boost/algorithm/string/replace.hpp>
 #include <fstream>
 
@@ -18,7 +18,7 @@ typedef K::Point_2 Point;
 
 void write_json_no_escaping(const boost::property_tree::ptree& pt, const std::string& filename) {
     std::ostringstream oss;
-    write_json(oss, pt, true);  // The 'true' parameter enables pretty-printing
+    write_json(oss, pt, true); 
 
     std::string json_str = oss.str();
     
@@ -39,9 +39,8 @@ void write_json_no_escaping(const boost::property_tree::ptree& pt, const std::st
 // Function to convert K::FT to a string representation
 std::string rational_to_string(const K::FT& coord) {
     const auto exact_coord = CGAL::exact(coord);
-    // If the denominator is 1, just return the numerator as an integer string
     if (exact_coord.get_den() == 1) {
-        return exact_coord.get_num().get_str();  // Use .get_str() for mpz_class to convert to string
+        return exact_coord.get_num().get_str();
     } else {
         std::ostringstream oss;
         oss << exact_coord.get_num().get_str() << "/" << exact_coord.get_den().get_str();
@@ -123,7 +122,6 @@ void output(const std::vector<std::pair<Point, Point>>& edges, std::vector<Point
     // Write the output JSON to a file
     try {
         write_json_no_escaping(output_pt, "../output.json");
-        std::cout << "Output written to output.json" << std::endl;
     } catch (const boost::property_tree::json_parser_error &e) {
         std::cerr << "Error writing JSON: " << e.what() << std::endl;
     }

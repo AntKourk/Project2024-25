@@ -5,7 +5,6 @@
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include "inputs.h"
 
-// Define CGAL types
 typedef CGAL::Exact_predicates_exact_constructions_kernel K;
 typedef K::Point_2 Point;
 
@@ -39,17 +38,17 @@ InputData inputs() {
     // Create CGAL Point objects from the x and y coordinates
     std::vector<Point> points;
     for (int i = 0; i < num_points; ++i) {
-        points.push_back(Point(points_x[i], points_y[i]));  // Constructing CGAL Point
+        points.push_back(Point(points_x[i], points_y[i])); 
     }
 
     // Retrieve additional constraints
     std::vector<std::vector<int>> additional_constraints;
     for (const auto& row : pt.get_child("additional_constraints")) {
-        std::vector<int> row_values;  // Temporary vector to store each row
+        std::vector<int> row_values;
         for (const auto& value : row.second) {
             row_values.push_back(value.second.get_value<int>());
         }
-        additional_constraints.push_back(row_values);  // Add the row to the 2D vector
+        additional_constraints.push_back(row_values); 
     }
 
     // Retrieve region_boundary
@@ -64,5 +63,5 @@ InputData inputs() {
     input_data.region_boundary = region_boundary;
     input_data.additional_constraints = additional_constraints;
 
-    return input_data;  // Return the populated struct
+    return input_data; 
 }

@@ -51,9 +51,9 @@ int main(int argc, char* argv[]) {
 
     // Append the first point again to close the polygon
     if (!region_boundary.empty()) {
-        int first_idx = region_boundary[0]; // Get the first index from region_boundary
+        int first_idx = region_boundary[0];
         if (first_idx < points.size()) {
-            polygon.push_back(points[first_idx]); // Append the first point to close the polygon
+            polygon.push_back(points[first_idx]);
         } else {
             cerr << "Invalid first index in region_boundary: " << first_idx << endl;
         }
@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
 
     // Insert constrained edges based on the provided indices
     for (const auto& constraint : constraints) {  
-        if (constraint.size() == 2) { // Check if constraint is a pair
+        if (constraint.size() == 2) {
             int idx1 = constraint[0];
             int idx2 = constraint[1];
             if (idx1 < points.size() && idx2 < points.size()) {
@@ -81,7 +81,6 @@ int main(int argc, char* argv[]) {
             }
         }
     }
-
 
     // Prompt user to choose the Steiner point insertion method
     cout << "Please choose a method for Steiner points from the following options:\n";
