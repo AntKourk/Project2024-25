@@ -39,7 +39,7 @@ double angle_between(const P& p1, const P& p2, const P& p3) {
     return std::acos(cos_angle) * 180.0 / M_PI; // Return angle in degrees
 }
 
-// Function to check if a triangle is obtuse (has an angle > 90 degrees)
+// Function to check if a triangle is obtuse
 template <typename FaceHandle>
 int obtuse_vertex_index(const FaceHandle& face) {
     double angle1 = angle_between(face->vertex(0)->point(), face->vertex(1)->point(), face->vertex(2)->point());

@@ -28,7 +28,7 @@ double angle_between(const P& p1, const P& p2, const P& p3) {
     return std::acos(cos_angle) * 180.0 / M_PI; // Return angle in degrees
 }
 
-// Function to check if a triangle is obtuse (has an angle > 90 degrees)
+// Function to check if a triangle is obtuse
 // Returns the index of the obtuse angle's vertex or -1 if no obtuse angle is found
 template <typename FaceHandle>
 int obtuse_vertex_index(const FaceHandle& face) {
@@ -135,7 +135,6 @@ std::vector<Point> add_steiner_in_convex_polygon_centroid(DT& dt, std::vector<Po
             if (!polygon_points.empty()) {  // Only proceed if convex polygon found
                 Point centroid = compute_centroid(polygon_points);
                 steiner_points.push_back(centroid);
-                //dt.insert(centroid);
                 added_steiner = true;
             }
         }
@@ -149,8 +148,6 @@ std::vector<Point> add_steiner_in_convex_polygon_centroid(DT& dt, std::vector<Po
 }
 
 int inside_convex_polygon_centroid_steiner_points(std::vector<Point> points, DT dt) {
-    // Initialize Delaunay triangulation
-    // DT dt;
     std::vector<Point> steiner_points;
     std::vector<std::pair<typename DT::Point, typename DT::Point>> edges;
 
