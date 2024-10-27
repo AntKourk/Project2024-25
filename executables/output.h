@@ -1,5 +1,3 @@
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
 #include <iostream>
 #include <vector>
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
