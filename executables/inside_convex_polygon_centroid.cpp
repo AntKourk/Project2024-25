@@ -1,5 +1,3 @@
-//shmeia steiner sto meso thw pleuras apenanti apo thn ambleia
-
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include <CGAL/Polygon_2.h>
 #include <CGAL/convex_hull_2.h>
@@ -8,6 +6,7 @@
 #include <stack>
 #include <cmath> // For angle calculations
 #include "inside_convex_polygon_centroid.h"
+#include "output.h"
 
 // Define CGAL types
 typedef CGAL::Exact_predicates_exact_constructions_kernel K;
@@ -107,11 +106,32 @@ std::vector<Point> find_convex_polygon(DT& dt, FaceHandle start_face) {
     }
 }
 
+template <typename DT>
+std::vector<std::pair<typename DT::Point, typename DT::Point>> print_edges(const DT& dt) {
+    // Define a vector to hold pairs of points representing edges
+    std::vector<std::pair<typename DT::Point, typename DT::Point>> edges;
+
+    std::cout << "Edges:\n";
+    for (auto edge = dt.finite_edges_begin(); edge != dt.finite_edges_end(); ++edge) {
+        auto v1 = edge->first->vertex((edge->second + 1) % 3)->point();
+        auto v2 = edge->first->vertex((edge->second + 2) % 3)->point();
+        
+        // Print the edge
+        std::cout << "(" << v1.x() << ", " << v1.y() << ") - (" 
+                  << v2.x() << ", " << v2.y() << ")\n";
+
+        // Add the edge to the vector
+        edges.emplace_back(v1, v2);
+    }
+
+    // Return the vector of edges
+    return edges;
+}
+
 // Function to add Steiner points at the center of convex polygons of obtuse triangles
 template <typename DT>
-void add_steiner_in_convex_polygon_centroid(DT& dt) {
+std::vector<Point> add_steiner_in_convex_polygon_centroid(DT& dt, std::vector<Point> steiner_points) {
     bool added_steiner = false;
-    std::vector<Point> steiner_points;
     int count = 0;
 
     for (auto face = dt.finite_faces_begin(); face != dt.finite_faces_end(); ++face) {
@@ -131,11 +151,15 @@ void add_steiner_in_convex_polygon_centroid(DT& dt) {
     for (const Point& p : steiner_points) {
         dt.insert(p);
     }
+
+    return steiner_points;
 }
 
 int inside_convex_polygon_centroid_steiner_points(std::vector<Point> points, DT dt) {
     // Initialize Delaunay triangulation
     // DT dt;
+    std::vector<Point> steiner_points;
+    std::vector<std::pair<typename DT::Point, typename DT::Point>> edges;
 
     bool obtuse_exists = true;
     int obtuse_count = 0;
@@ -150,7 +174,7 @@ int inside_convex_polygon_centroid_steiner_points(std::vector<Point> points, DT 
 
     while (obtuse_exists && iterations <= 15) {
         
-        add_steiner_in_convex_polygon_centroid(dt);
+        steiner_points = add_steiner_in_convex_polygon_centroid(dt, steiner_points);
         
         obtuse_exists = false;
         obtuse_count = 0;  
@@ -167,6 +191,9 @@ int inside_convex_polygon_centroid_steiner_points(std::vector<Point> points, DT 
         iterations++;
     }
 
+    edges = print_edges(dt);
+
+    output(edges, steiner_points);
     CGAL::draw(dt);
 
     return 0;

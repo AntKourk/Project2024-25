@@ -83,9 +83,6 @@ int main(int argc, char* argv[]) {
     }
 
 
-    flip_edges();
-
-
     // Prompt user to choose the Steiner point insertion method
     cout << "Please choose a method for Steiner points from the following options:\n";
     cout << "1: Center of longest edge\n";
@@ -93,6 +90,7 @@ int main(int argc, char* argv[]) {
     cout << "3: Circumcenter\n";
     cout << "4: Centroid of internal convex polygon\n";
     cout << "5: Centroid\n";
+    cout << "6: Flip\n";
     cout << "Enter the number corresponding to your choice: ";
 
     int choice;
@@ -114,6 +112,9 @@ int main(int argc, char* argv[]) {
             break;
         case 5:
             centroid_steiner_points(points, cdt);
+            break;
+        case 6:
+            flip_edges(points, cdt);
             break;
         default:
             cerr << "Invalid choice. Please enter a number between 1 and 5.\n";

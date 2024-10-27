@@ -2,6 +2,7 @@
 #include <CGAL/Delaunay_triangulation_2.h>
 #include <CGAL/draw_triangulation_2.h>
 #include <cmath> // For angle calculations
+#include "output.h"
 
 // Define CGAL types
 typedef CGAL::Exact_predicates_exact_constructions_kernel K;
@@ -35,14 +36,25 @@ bool is_obtuse_triangle(const FaceHandle& face) {
 
 // Function to print the edges of the triangulation
 template <typename DT>
-void print_edges(const DT& dt) {
+std::vector<std::pair<typename DT::Point, typename DT::Point>> print_edges(const DT& dt) {
+    // Define a vector to hold pairs of points representing edges
+    std::vector<std::pair<typename DT::Point, typename DT::Point>> edges;
+
     std::cout << "Edges:\n";
     for (auto edge = dt.finite_edges_begin(); edge != dt.finite_edges_end(); ++edge) {
         auto v1 = edge->first->vertex((edge->second + 1) % 3)->point();
         auto v2 = edge->first->vertex((edge->second + 2) % 3)->point();
+        
+        // Print the edge
         std::cout << "(" << v1.x() << ", " << v1.y() << ") - (" 
                   << v2.x() << ", " << v2.y() << ")\n";
+
+        // Add the edge to the vector
+        edges.emplace_back(v1, v2);
     }
+
+    // Return the vector of edges
+    return edges;
 }
 
 // Function to print the points of the triangulation
@@ -73,18 +85,19 @@ void flip_if_obtuse(DT& dt) {
     }
 }
 
-int flip_edges() {
+int flip_edges(std::vector<Point> points, DT dt) {
     // Initialize plain Delaunay triangulation (no constraints)
-    DT dt;
 
     // Example points that will generate obtuse triangles
-    std::vector<Point> points = {
-        Point(0, 0),    // Bottom left
-        Point(5, 0),    // Bottom right
-        // Point(2.5, 5),  // Top middle
-        Point(1, 2),    // Internal point
-        Point(4, 2)     // Internal point
-    };
+    //  = {
+    //     Point(0, 0),    // Bottom left
+    //     Point(5, 0),    // Bottom right
+    //     // Point(2.5, 5),  // Top middle
+    //     Point(1, 2),    // Internal point
+    //     Point(4, 2)     // Internal point
+    // };
+
+    std::vector<std::pair<typename DT::Point, typename DT::Point>> edges;
 
     // Insert points into the triangulation
     for (const Point& p : points) {
@@ -100,9 +113,9 @@ int flip_edges() {
     // Flip obtuse edges if possible
     flip_if_obtuse(dt);
 
-    // Print edges after flipping
-    std::cout << "After flipping edges:\n";
-    print_edges(dt);
+
+    edges = print_edges(dt);
+    output(edges, {});
 
     CGAL::draw(dt);
 
