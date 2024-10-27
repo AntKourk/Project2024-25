@@ -4,7 +4,7 @@
 #include <vector>
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include "output.h"
-#include "executable.h"
+#include "inputs.h"
 #include <string>
 #include <sstream>  // For std::ostringstream
 #include <boost/algorithm/string/replace.hpp>

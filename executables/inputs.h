@@ -14,4 +14,4 @@ struct InputData {
 };
 
 // Function declaration for executable
-InputData executable();  // Change the return type to std::vector<Point>
+InputData inputs();  // Change the return type to std::vector<Point>

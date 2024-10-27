@@ -3,13 +3,13 @@
 #include <iostream>
 #include <vector>
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
-#include "executable.h"
+#include "inputs.h"
 
 // Define CGAL types
 typedef CGAL::Exact_predicates_exact_constructions_kernel K;
 typedef K::Point_2 Point;
 
-InputData executable() {
+InputData inputs() {
     // Δημιουργία του property tree
     boost::property_tree::ptree pt;
 
