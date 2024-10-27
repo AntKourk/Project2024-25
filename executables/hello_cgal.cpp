@@ -82,62 +82,42 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // Calculate the number of points
-    size_t num_points = points.size();
 
-    // Print number of points
-    // cout << "Number of Points: " << num_points << endl;
-
-    // Print X and Y coordinates of points
-    // cout << "Points X: ";
-    // for (const auto& p : points) {
-    //     cout << p.x() << " "; 
-    // }
-    // cout << "\nPoints Y: ";
-    // for (const auto& p : points) {
-    //     cout << p.y() << " ";
-    // }
-    // cout << endl;
-
-    // Print Additional Constraints
-    // cout << "Additional Constraints: ";
-    // for (const auto& row : constraints) {
-    //     cout << "\n";
-    //     for (const auto& value : row) {
-    //         cout << value << " ";
-    //     }
-    // }
-    // cout << "\n";
-
-    // Print Region Boundary
-    // cout << "Region Boundary: ";
-    // for (const auto& boundary : region_boundary) {
-    //     cout << boundary << " ";
-    // }
-    // cout << endl;
-
-    // Draw the triangulation
-    // CGAL::draw(cdt);
-
-    // output();
-
-    // flip_edges();
+    flip_edges();
 
 
-    if (strcmp(argv[1], "center") == 0) {
-        center_steiner_points(points, cdt);
-    }
-    else if (strcmp(argv[1], "projection") == 0) {
-        probolh_steiner_points(points, cdt);
-    }
-    else if (strcmp(argv[1], "circumcenter") == 0) {
-        circumcenter_steiner_points(points, cdt);
-    }
-    else if (strcmp(argv[1],"inside_convex_polygon") == 0) {
-        inside_convex_polygon_centroid_steiner_points(points, cdt);
-    }
-    else if (strcmp(argv[1],"centroid") == 0) {
-        centroid_steiner_points(points, cdt);
+    // Prompt user to choose the Steiner point insertion method
+    cout << "Please choose a method for Steiner points from the following options:\n";
+    cout << "1: Center of longest edge\n";
+    cout << "2: Projection\n";
+    cout << "3: Circumcenter\n";
+    cout << "4: Centroid of internal convex polygon\n";
+    cout << "5: Centroid\n";
+    cout << "Enter the number corresponding to your choice: ";
+
+    int choice;
+    cin >> choice;
+
+    // Execute the chosen method based on user input
+    switch (choice) {
+        case 1:
+            center_steiner_points(points, cdt);
+            break;
+        case 2:
+            probolh_steiner_points(points, cdt);
+            break;
+        case 3:
+            circumcenter_steiner_points(points, cdt);
+            break;
+        case 4:
+            inside_convex_polygon_centroid_steiner_points(points, cdt);
+            break;
+        case 5:
+            centroid_steiner_points(points, cdt);
+            break;
+        default:
+            cerr << "Invalid choice. Please enter a number between 1 and 5.\n";
+            return 1;
     }
 
     return 0;
