@@ -110,16 +110,9 @@ template <typename DT>
 std::vector<std::pair<typename DT::Point, typename DT::Point>> print_edges(const DT& dt) {
     // Define a vector to hold pairs of points representing edges
     std::vector<std::pair<typename DT::Point, typename DT::Point>> edges;
-
-    std::cout << "Edges:\n";
     for (auto edge = dt.finite_edges_begin(); edge != dt.finite_edges_end(); ++edge) {
         auto v1 = edge->first->vertex((edge->second + 1) % 3)->point();
         auto v2 = edge->first->vertex((edge->second + 2) % 3)->point();
-        
-        // Print the edge
-        std::cout << "(" << v1.x() << ", " << v1.y() << ") - (" 
-                  << v2.x() << ", " << v2.y() << ")\n";
-
         // Add the edge to the vector
         edges.emplace_back(v1, v2);
     }
@@ -172,7 +165,7 @@ int inside_convex_polygon_centroid_steiner_points(std::vector<Point> points, DT 
 
     CGAL::draw(dt);
 
-    while (obtuse_exists && iterations <= 15) {
+    while (obtuse_exists && iterations <= 5) {
         
         steiner_points = add_steiner_in_convex_polygon_centroid(dt, steiner_points);
         
@@ -187,7 +180,6 @@ int inside_convex_polygon_centroid_steiner_points(std::vector<Point> points, DT 
                 CGAL::draw(dt);
             }
         }
-
         iterations++;
     }
 
