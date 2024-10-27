@@ -1,16 +1,19 @@
 //shmeia steiner sto meso thw pleuras apenanti apo thn ambleia
 
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
-#include <CGAL/Delaunay_triangulation_2.h>
-#include <CGAL/draw_triangulation_2.h>
+#include <CGAL/Polygon_2.h>
 #include <CGAL/convex_hull_2.h>
+#include <vector>
+#include <set>
+#include <stack>
 #include <cmath> // For angle calculations
 #include "inside_convex_polygon_centroid.h"
 
 // Define CGAL types
 typedef CGAL::Exact_predicates_exact_constructions_kernel K;
 typedef CGAL::Constrained_Delaunay_triangulation_2<K> DT;  // Constrained Delaunay triangulation
-typedef DT::Point Point;
+typedef K::Point_2 Point;
+typedef CGAL::Polygon_2<K> Polygon_2;
 typedef DT::Edge Edge;
 typedef DT::Face_handle FaceHandle;
 
@@ -52,9 +55,8 @@ Point compute_centroid(const std::vector<Point>& points) {
     return Point(sum_x / points.size(), sum_y / points.size());
 }
 
-// Function to find all connected obtuse triangles forming a convex polygon
 std::vector<Point> find_convex_polygon(DT& dt, FaceHandle start_face) {
-    std::vector<Point> polygon_points;
+    std::set<Point> unique_points; // Use a set to avoid duplicate points
     std::set<FaceHandle> visited_faces; // To keep track of visited faces
     std::stack<FaceHandle> face_stack; // Stack for DFS
     face_stack.push(start_face); // Start from the initial face
@@ -72,10 +74,10 @@ std::vector<Point> find_convex_polygon(DT& dt, FaceHandle start_face) {
 
         // Check if the current face is obtuse
         if (obtuse_vertex_index(current_face) != -1) {
-            // Add the vertices of the obtuse triangle to polygon points
+            // Add the vertices of the obtuse triangle to the unique points set
             for (int i = 0; i < 3; ++i) {
                 Point pt = current_face->vertex(i)->point();
-                polygon_points.push_back(pt);
+                unique_points.insert(pt);
             }
 
             // Explore neighboring faces
@@ -88,24 +90,21 @@ std::vector<Point> find_convex_polygon(DT& dt, FaceHandle start_face) {
         }
     }
 
-    // Remove duplicate points (in case the same vertex was added multiple times)
-    std::set<Point> unique_points(polygon_points.begin(), polygon_points.end());
-    polygon_points.assign(unique_points.begin(), unique_points.end());
+    // Create a Polygon_2 with the unique points
+    Polygon_2 polygon;
+    for (const auto& pt : unique_points) {
+        polygon.push_back(pt);
+    }
 
-    // if (!polygon_points.empty()) {
-    // }
-
-    //return polygon_points;
-
-    //Check if polygon is convex
-    // std::vector<Point> convex_hull;
-    // CGAL::convex_hull_2(polygon_points.begin(), polygon_points.end(), std::back_inserter(convex_hull));
-    // std::cout << convex_hull.size() << " " << polygon_points.size() << " heheeeeeeeeeeeeeeeeeeeeeeeeee\n" << endl;
-    // if (convex_hull.size() == polygon_points.size()) {
-        return polygon_points;  // Return polygon points if convex
-    // }
-
-    //  return {};  // Return empty vector if not convex
+    // Check if the polygon is convex
+    if (polygon.is_convex()) {
+        return std::vector<Point>(polygon.vertices_begin(), polygon.vertices_end());
+    } else {
+        // If not convex, compute the convex hull
+        std::vector<Point> convex_hull;
+        CGAL::convex_hull_2(unique_points.begin(), unique_points.end(), std::back_inserter(convex_hull));
+        return convex_hull;
+    }
 }
 
 // Function to add Steiner points at the center of convex polygons of obtuse triangles
@@ -161,6 +160,7 @@ int inside_convex_polygon_centroid_steiner_points(std::vector<Point> points, DT 
             if (obtuse_vertex != -1) {
                 obtuse_exists = true;
                 obtuse_count++;
+                CGAL::draw(dt);
             }
         }
 
