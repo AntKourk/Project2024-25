@@ -90,7 +90,7 @@ std::vector<std::pair<typename DT::Point, typename DT::Point>> print_edges(const
 }
 
 template <typename DT>
-std::vector<Point> add_steiner_in_circumcenter(DT& dt, std::vector<Point> steiner_points,  const std::vector<Point>& convex_hull) {
+std::pair<std::vector<Point>, std::vector<Point>> add_steiner_in_centroid(DT& dt, std::vector<Point> steiner_points, std::vector<Point> points,  const std::vector<Point>& convex_hull) {
     bool added_steiner = false;
 
     for (auto face = dt.finite_faces_begin(); face != dt.finite_faces_end(); ++face) {
@@ -104,6 +104,7 @@ std::vector<Point> add_steiner_in_circumcenter(DT& dt, std::vector<Point> steine
             // Έλεγχος αν το Steiner σημείο βρίσκεται εντός του κυρτού περιβλήματος
             if (is_within_convex_hull(circumcenter_point, convex_hull)) {
                 steiner_points.push_back(circumcenter_point);
+                points.push_back(circumcenter_point);
                 added_steiner = true;
             }
         }
@@ -115,11 +116,7 @@ std::vector<Point> add_steiner_in_circumcenter(DT& dt, std::vector<Point> steine
         dt.insert(p);
     }
 
-    if (added_steiner) {
-        return steiner_points;
-    } else {
-        return {};
-    }
+    return {steiner_points, points};
 }
 
 int circumcenter_steiner_points(std::vector<Point> points, DT dt) {
@@ -133,6 +130,7 @@ int circumcenter_steiner_points(std::vector<Point> points, DT dt) {
     int iterations = 0;
     
     std::vector<Point> steiner_points;
+    std::pair<std::vector<Point>, std::vector<Point>> all_points;
 
     // Insert points into the triangulation
     for (const Point& p : points) {
@@ -151,7 +149,9 @@ int circumcenter_steiner_points(std::vector<Point> points, DT dt) {
 
     while (obtuse_exists && iterations <= 5) {
         
-        steiner_points = add_steiner_in_circumcenter(dt, steiner_points, convex_hull);
+        all_points = add_steiner_in_centroid(dt, steiner_points, points, convex_hull);
+        steiner_points = all_points.first;  // Extract Steiner points
+        points = all_points.second;        // Extract updated points
         
         obtuse_exists = false;
         obtuse_count = 0;
